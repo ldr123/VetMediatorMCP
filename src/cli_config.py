@@ -131,10 +131,67 @@ def get_user_config_path() -> Path:
     Return user global configuration file path (without auto-creation)
 
     Returns:
-        用户配置文件路径 (~/.VetMediatorSetting.json)
-        User configuration file path (~/.VetMediatorSetting.json)
+        用户配置文件路径 (~/.vetmediator/config.json)
+        User configuration file path (~/.vetmediator/config.json)
+    """
+    return Path.home() / ".vetmediator" / "config.json"
+
+
+def get_legacy_config_path() -> Path:
+    """返回旧版全局配置文件路径（用于向后兼容）
+    Return legacy global configuration file path (for backward compatibility)
+
+    Returns:
+        旧版配置文件路径 (~/.VetMediatorSetting.json)
+        Legacy configuration file path (~/.VetMediatorSetting.json)
     """
     return Path.home() / ".VetMediatorSetting.json"
+
+
+def migrate_legacy_config() -> bool:
+    """自动迁移旧版配置到新路径（如果存在）
+    Automatically migrate legacy config to new path (if exists)
+
+    Returns:
+        True表示迁移成功或无需迁移，False表示迁移失败
+        True if migration succeeded or not needed, False if migration failed
+    """
+    legacy_path = get_legacy_config_path()
+    new_path = get_user_config_path()
+
+    # 如果新路径已存在，无需迁移
+    if new_path.exists():
+        return True
+
+    # 如果旧路径不存在，无需迁移
+    if not legacy_path.exists():
+        return True
+
+    try:
+        # 确保新目录存在
+        new_path.parent.mkdir(parents=True, exist_ok=True)
+
+        # 读取旧配置
+        legacy_content = legacy_path.read_text(encoding='utf-8')
+
+        # 写入新路径
+        new_path.write_text(legacy_content, encoding='utf-8')
+
+        # 设置文件权限（仅用户可读写）
+        try:
+            new_path.chmod(0o600)
+        except Exception:
+            pass  # 忽略权限设置失败
+
+        # 删除旧文件
+        legacy_path.unlink()
+
+        logger.info(f"[Config] Migrated legacy config from {legacy_path} to {new_path}")
+        return True
+
+    except Exception as e:
+        logger.error(f"[Config] Failed to migrate legacy config: {e}")
+        return False
 
 
 def create_config_file(path: Path) -> None:
@@ -174,7 +231,7 @@ def load_config(project_root: Path) -> Dict[str, Any]:
 
     优先级（从高到低）| Priority (high to low):
     1. 项目目录/.VetMediatorSetting.json | Project directory/.VetMediatorSetting.json
-    2. ~/.VetMediatorSetting.json
+    2. ~/.vetmediator/config.json (自动从旧路径迁移 | Auto-migrated from legacy path)
     3. 内置默认配置 | Built-in default configuration
 
     注意：不会自动创建配置文件 | Note: No auto-creation of config files
@@ -185,6 +242,9 @@ def load_config(project_root: Path) -> Dict[str, Any]:
     Returns:
         合并后的配置字典 | Merged configuration dict
     """
+    # 0. 尝试自动迁移旧配置（仅在首次加载时触发）
+    migrate_legacy_config()
+
     # 1. 从默认配置开始
     config = get_default_config()
 

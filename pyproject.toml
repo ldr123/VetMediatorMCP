@@ -1,6 +1,6 @@
 [project]
 name = "VetMediator"
-version = "0.0.1"
+version = "2.0.0"
 description = "AI CLI工具审查协调器MCP服务器，支持多工具代码审查工作流"
 authors = [
     { name = "ldr123", email = "ldr12@163.com" }

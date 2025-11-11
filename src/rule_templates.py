@@ -1,4 +1,15 @@
-# CLI工具交叉验证文件生成规则
+"""
+内置规则模板 | Built-in Rule Templates
+
+此模块包含所有审查规则的完整内容，作为Python字符串常量。
+规则内容在打包时嵌入代码，无需依赖外部文件。
+
+版本历史：
+- v1.0.0: 初始版本，从 rules/rule-agent-file-generator.md 导入
+"""
+
+# 文件生成规则（完整版）
+RULE_FILE_GENERATOR = """# CLI工具交叉验证文件生成规则
 
 **触发词**：`使用vet验证` 或 `让vet帮我验证` 或 `使用CLI工具交叉验证`
 
@@ -431,3 +442,29 @@ mcp__vet-mediator-mcp__start_review(
 - 文件名必须严格遵循`Task{N}_{Description}.md`格式
 - Description中不能包含连字符"-"
 - 提供original_requirement_path和task_planning_path可以让审查员验证任务拆分的合理性
+"""
+
+# 规则类型映射表
+RULE_TEMPLATES = {
+    "file-generator": RULE_FILE_GENERATOR,
+}
+
+
+def get_rule_content(rule_type: str = "file-generator") -> str:
+    """获取指定类型的规则内容
+
+    Args:
+        rule_type: 规则类型（默认: file-generator）
+
+    Returns:
+        规则内容字符串
+
+    Raises:
+        KeyError: 如果规则类型不存在
+    """
+    return RULE_TEMPLATES[rule_type]
+
+
+def get_available_rule_types() -> list[str]:
+    """获取所有可用的规则类型列表"""
+    return list(RULE_TEMPLATES.keys())

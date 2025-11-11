@@ -20,6 +20,8 @@
 - 🎯 **配置管理** - GUI界面查看工具状态、一键切换激活工具
 - 📝 **结构化报告** - P0/P1/P2问题分级，7维度质量评估
 - 🌐 **多语言支持** - UTF-8编码，支持中文、日文、emoji等
+- 💾 **智能缓存** - Hash验证自动缓存规则文件，节省Token消耗
+- 🔧 **自动迁移** - 全局配置自动迁移到 `~/.vetmediator/` 目录
 
 ---
 
@@ -201,50 +203,13 @@ AI代理解析报告并决定后续动作：
 **Gemini CLI配置示例**:
 - 将 `rules/CLAUDE.md` 的内容复制到项目根目录的 `GEMINI.md` **开头部分**
 
-此内容包含AI工具使用VetMediator的触发词和执行步骤。
-
-📋 **步骤3：复制任务生成规则到项目**
-
-从本仓库复制 `rules/rule-agent-file-generator.md` 到你的项目的 `rules/` 目录
-
-📋 **步骤4：更新AI工具规则文件中的路径引用**
-
-⚠️ **重要**: 复制 `rules/CLAUDE.md` 的内容后，你需要**更新**AI工具规则文件中的文件路径。
-
-**`rules/CLAUDE.md` 中的原始内容**:
-```markdown
-1. 读取规则文件：`rule-agent-file-generator.md`（与本文件位于同一目录）
-```
-
-**你需要修改为**:
-
-如果你将 `rule-agent-file-generator.md` 放在 `rules/` 目录:
-
-```markdown
-1. 读取规则文件：`rules/rule-agent-file-generator.md`
-```
-
-或者，如果你放在其他目录，相应更新路径：
-
-```markdown
-1. 读取规则文件：`path/to/your/rule-agent-file-generator.md`
-```
-
-**不同位置的示例**:
-- 如果在 `rules/` 目录: `rules/rule-agent-file-generator.md`
-- 如果在 `docs/` 目录: `docs/rule-agent-file-generator.md`
-- 如果在项目根目录: `rule-agent-file-generator.md`
-- 如果在 `.cursor/rules/` 目录（Cursor用户）: `rule-agent-file-generator.md`（同目录）
-
-⚠️ **重要**: AI工具规则文件引用了 `rule-agent-file-generator.md`。你可以将 `rule-agent-file-generator.md` 放在任何目录，但需要相应更新路径引用。
+**规则内容说明**：AI工具首次使用时会通过MCP自动下载并缓存完整的审查规则（约4000 tokens），后续使用直接读取本地缓存，大幅节省Token消耗。
 
 **文件位置总结**:
 ```
 YourProject/
 ├── .mcp.json                           # MCP服务器配置
-├── CLAUDE.md (或 AGENTS.md 等)        # AI工具规则文件（将VetMediator配置添加到开头）
-└── rules/
-    └── rule-agent-file-generator.md    # 任务生成规则
+└── CLAUDE.md (或 AGENTS.md 等)        # AI工具规则文件（将VetMediator配置添加到开头）
 ```
 
 **方式二：本地开发安装**

@@ -3,6 +3,7 @@
 import os
 import sys
 import asyncio
+import hashlib
 from pathlib import Path
 from typing import Any, List, Optional
 
@@ -19,8 +20,10 @@ from mcp.server.stdio import stdio_server
 # Try relative import first, fallback to absolute
 try:
     from .workflow_manager import CliWorkflowManager
+    from .rule_templates import get_rule_content, get_available_rule_types
 except ImportError:
     from workflow_manager import CliWorkflowManager
+    from rule_templates import get_rule_content, get_available_rule_types
 
 
 class StartReviewArgs(BaseModel):
@@ -49,6 +52,22 @@ class ShowCliConfigArgs(BaseModel):
     project_root: str = Field(description="项目根目录绝对路径")
 
 
+class GetReviewRuleHashArgs(BaseModel):
+    """get_review_rule_hash工具的参数"""
+    rule_type: str = Field(
+        default="file-generator",
+        description="规则类型：file-generator（文件生成规则）"
+    )
+
+
+class GetReviewRulesArgs(BaseModel):
+    """get_review_rules工具的参数"""
+    rule_type: str = Field(
+        default="file-generator",
+        description="规则类型：file-generator（文件生成规则）"
+    )
+
+
 
 # Initialize MCP server
 app = Server("vet-mediator-mcp")
@@ -73,6 +92,23 @@ async def list_tools() -> list[Tool]:
                 "显示CLI工具配置界面，允许用户查看所有配置工具的健康状态并切换当前激活的CLI工具"
             ),
             inputSchema=ShowCliConfigArgs.model_json_schema()
+        ),
+        Tool(
+            name="get_review_rule_hash",
+            description=(
+                "获取审查规则文件的SHA-256 hash值（前12位），用于本地缓存版本检测。"
+                "AI代理可以通过hash判断本地缓存的规则文件是否是最新版本。"
+            ),
+            inputSchema=GetReviewRuleHashArgs.model_json_schema()
+        ),
+        Tool(
+            name="get_review_rules",
+            description=(
+                "获取完整的审查规则文档内容（Markdown格式）。"
+                "仅在hash不匹配时调用，用于更新本地缓存。"
+                "规则文档包含：文件格式规范、模板、示例、MCP调用说明等。"
+            ),
+            inputSchema=GetReviewRulesArgs.model_json_schema()
         )
     ]
 
@@ -82,13 +118,44 @@ async def call_tool(name: str, arguments: Any) -> list[TextContent]:
     """处理MCP工具调用
 
     Args:
-        name: 工具名称（"start_review"或"show_cli_config"）
+        name: 工具名称（"start_review"、"show_cli_config"、"get_review_rule_hash"、"get_review_rules"）
         arguments: 工具参数
 
     Returns:
         包含结果的TextContent列表
     """
-    if name == "start_review":
+    if name == "get_review_rule_hash":
+        args = GetReviewRuleHashArgs(**arguments)
+        try:
+            # 从内置模板获取规则内容并计算hash
+            content = get_rule_content(args.rule_type)
+            hash_value = hashlib.sha256(content.encode('utf-8')).hexdigest()[:12]
+            return [TextContent(type="text", text=hash_value)]
+        except KeyError:
+            available_types = get_available_rule_types()
+            return [TextContent(
+                type="text",
+                text=f"[ERROR] Unknown rule type: {args.rule_type}. Available types: {', '.join(available_types)}"
+            )]
+        except Exception as e:
+            return [TextContent(type="text", text=f"[ERROR] Failed to calculate hash: {str(e)}")]
+
+    elif name == "get_review_rules":
+        args = GetReviewRulesArgs(**arguments)
+        try:
+            # 从内置模板获取规则内容
+            content = get_rule_content(args.rule_type)
+            return [TextContent(type="text", text=content)]
+        except KeyError:
+            available_types = get_available_rule_types()
+            return [TextContent(
+                type="text",
+                text=f"[ERROR] Unknown rule type: {args.rule_type}. Available types: {', '.join(available_types)}"
+            )]
+        except Exception as e:
+            return [TextContent(type="text", text=f"[ERROR] Failed to read rules: {str(e)}")]
+
+    elif name == "start_review":
         args = StartReviewArgs(**arguments)
 
         # Create workflow_manager instance with project_root

@@ -20,6 +20,8 @@
 - 🎯 **Configuration Management** - GUI interface to view tool status and switch active tools
 - 📝 **Structured Reports** - P0/P1/P2 issue classification, 7-dimension quality assessment
 - 🌐 **Multilingual Support** - UTF-8 encoding, supports Chinese, Japanese, emoji, etc.
+- 💾 **Smart Caching** - Hash-based auto-caching of rules to save token consumption
+- 🔧 **Auto Migration** - Global config auto-migrates to `~/.vetmediator/` directory
 
 ---
 
@@ -201,50 +203,13 @@ View the content of `rules/CLAUDE.md` in this repository, and add it to your AI 
 **Example for Gemini CLI**:
 - Copy the content of `rules/CLAUDE.md` to the **beginning** of your project's `GEMINI.md`
 
-This content includes trigger words and execution steps for the AI tool to use VetMediator.
-
-📋 **Step 3: Copy task generation rules to your project**
-
-Copy `rules/rule-agent-file-generator.md` from this repository to your project's `rules/` directory
-
-📋 **Step 4: Update the path reference in your AI tool's rule file**
-
-⚠️ **Important**: After copying the content from `rules/CLAUDE.md`, you need to **update the file path** in your AI tool's rule file.
-
-**Original line in `rules/CLAUDE.md`**:
-```markdown
-1. 读取规则文件：`rule-agent-file-generator.md`（与本文件位于同一目录）
-```
-
-**What you need to change**:
-
-If you placed `rule-agent-file-generator.md` in `rules/` directory:
-
-```markdown
-1. 读取规则文件：`rules/rule-agent-file-generator.md`
-```
-
-Or, if you placed it in another directory, update the path accordingly:
-
-```markdown
-1. 读取规则文件：`path/to/your/rule-agent-file-generator.md`
-```
-
-**Example for different locations**:
-- If in `rules/` folder: `rules/rule-agent-file-generator.md`
-- If in `docs/` folder: `docs/rule-agent-file-generator.md`
-- If in project root: `rule-agent-file-generator.md`
-- If in `.cursor/rules/` folder (for Cursor): `rule-agent-file-generator.md` (same directory)
-
-⚠️ **Important**: The AI tool's rule file references `rule-agent-file-generator.md`. You can place `rule-agent-file-generator.md` in any directory, but make sure to update the path reference accordingly.
+**About the rules**: When AI tools first use VetMediator, they automatically download and cache the complete review rules (~4000 tokens) via MCP. Subsequent uses read from local cache, significantly saving token consumption.
 
 **File locations summary**:
 ```
 YourProject/
 ├── .mcp.json                           # MCP server configuration
-├── CLAUDE.md (or AGENTS.md, etc.)     # AI tool rule file (add VetMediator config to beginning)
-└── rules/
-    └── rule-agent-file-generator.md    # Task generation rules
+└── CLAUDE.md (or AGENTS.md, etc.)     # AI tool rule file (add VetMediator config to beginning)
 ```
 
 **Method 2: Local Development Installation**
@@ -366,9 +331,10 @@ Your `CLAUDE.md` should contain the following content:
 **Trigger Words**: `use vet verification` or `let vet verify` or `use CLI tool cross-validation`
 
 **Execution Steps**:
-1. Read rules file: `rules/rule-agent-file-generator.md`
-2. Generate ReviewIndex.md and multiple task files according to rules (UTF-8 encoding)
-3. Call MCP tool: `mcp__vet-mediator-mcp__start_review`
+1. Call `mcp__vet-mediator-mcp__get_review_rule_hash` to check for cached rules
+2. Download rules via MCP if needed (first use or update)
+3. Generate required files according to cached rules (UTF-8 encoding)
+4. Call MCP tool: `mcp__vet-mediator-mcp__start_review`
    - Required parameters: `review_index_path`, `draft_paths`, `project_root`
    - Recommended parameter: `initiator="Claude Code"` (identifies AI tool initiating review)
 
@@ -546,7 +512,7 @@ vet-mediator-mcp/
 │   ├── cli_check_ui.py           # Configuration management window
 │   └── encoding_utils.py         # Encoding processing
 ├── rules/
-│   └── rule-agent-file-generator.md  # AI agent file generation rules
+│   └── CLAUDE.md                   # Rule file for AI tools (copy to your project)
 ├── docs/
 │   ├── imgs/                     # Workflow screenshots
 │   ├── zh/README.md              # Chinese documentation
