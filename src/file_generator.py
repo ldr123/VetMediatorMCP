@@ -68,7 +68,9 @@ class FileGenerator:
         review_index_path: str,
         draft_paths: List[str],
         initiator: Optional[str] = None,
-        reviewer: Optional[str] = None
+        reviewer: Optional[str] = None,
+        original_requirement_path: Optional[str] = None,
+        task_planning_path: Optional[str] = None
     ) -> tuple[Path, List[Path]]:
         """将MCP客户端临时文件复制到会话目录，统一使用UTF-8编码，注入元数据。
 
@@ -77,13 +79,16 @@ class FileGenerator:
         2. 替换ReviewIndex.md中的占位符（注入完整审查规则和元数据）
         3. 写入会话目录（统一使用UTF-8无BOM）
         4. 处理每个任务文件（提取目标文件名、验证格式、复制）
-        5. 删除所有临时文件（使用try-finally确保清理）
+        5. 如果提供了OriginalRequirement.md和TaskPlanning.md，也复制它们
+        6. 删除所有临时文件（使用try-finally确保清理）
 
         Args:
             review_index_path: ReviewIndex.md临时文件的绝对路径
             draft_paths: 任务文件临时路径列表（按任务顺序）
             initiator: 发起审查的客户端名称（如ClaudeCode）
             reviewer: 审阅工具名称（如iFlow）
+            original_requirement_path: OriginalRequirement.md临时文件的绝对路径（可选）
+            task_planning_path: TaskPlanning.md临时文件的绝对路径（可选）
 
         Returns:
             (review_index_file, task_files): 会话目录中的文件路径
@@ -124,8 +129,30 @@ class FileGenerator:
                 task_file.write_text(task_text, encoding='utf-8')
                 task_files.append(task_file)
 
+            # 4. 处理OriginalRequirement.md（如果提供）
+            if original_requirement_path:
+                orig_req_path = Path(original_requirement_path)
+                temp_files_to_delete.append(orig_req_path)
+
+                orig_req_target = self._extract_target_filename(orig_req_path.name)
+                orig_req_text = EncodingDetector.read_file(orig_req_path, support_bom=True)
+
+                orig_req_file = self.session_dir / orig_req_target
+                orig_req_file.write_text(orig_req_text, encoding='utf-8')
+
+            # 5. 处理TaskPlanning.md（如果提供）
+            if task_planning_path:
+                task_plan_path = Path(task_planning_path)
+                temp_files_to_delete.append(task_plan_path)
+
+                task_plan_target = self._extract_target_filename(task_plan_path.name)
+                task_plan_text = EncodingDetector.read_file(task_plan_path, support_bom=True)
+
+                task_plan_file = self.session_dir / task_plan_target
+                task_plan_file.write_text(task_plan_text, encoding='utf-8')
+
         finally:
-            # 4. 清理所有临时文件（即使出错也要执行）
+            # 6. 清理所有临时文件（即使出错也要执行）
             for temp_file in temp_files_to_delete:
                 temp_file.unlink(missing_ok=True)
 

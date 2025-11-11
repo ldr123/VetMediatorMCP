@@ -34,6 +34,18 @@ class StartReviewArgs(BaseModel):
     project_root: str = Field(description="项目根目录绝对路径（必需参数，由MCP客户端传递）")
     max_iterations: int = Field(default=3, description="最大迭代轮次（未来扩展），默认3轮")
     initiator: Optional[str] = Field(default=None, description="发起审查的客户端名称（如ClaudeCode、Cursor等），可选")
+    original_requirement_path: Optional[str] = Field(
+        default=None,
+        description="OriginalRequirement.md临时文件绝对路径（启用两阶段审查时推荐提供）"
+    )
+    task_planning_path: Optional[str] = Field(
+        default=None,
+        description="TaskPlanning.md临时文件绝对路径（启用两阶段审查时推荐提供）"
+    )
+    enable_two_stage_review: bool = Field(
+        default=True,
+        description="是否启用两阶段审查（Stage1: 需求与规划，Stage2: 代码实现），默认true"
+    )
 
 
 class ShowCliConfigArgs(BaseModel):
@@ -95,7 +107,10 @@ async def call_tool(name: str, arguments: Any) -> list[TextContent]:
                 review_index_path=args.review_index_path,
                 draft_paths=args.draft_paths,
                 max_iterations=args.max_iterations,
-                initiator=args.initiator
+                initiator=args.initiator,
+                original_requirement_path=args.original_requirement_path,
+                task_planning_path=args.task_planning_path,
+                enable_two_stage_review=args.enable_two_stage_review
             )
 
             # Format result as text response

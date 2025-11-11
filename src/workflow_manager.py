@@ -47,15 +47,21 @@ class CliWorkflowManager:
         review_index_path: str,
         draft_paths: List[str],
         max_iterations: int = 3,
-        initiator: Optional[str] = None
+        initiator: Optional[str] = None,
+        original_requirement_path: Optional[str] = None,
+        task_planning_path: Optional[str] = None,
+        enable_two_stage_review: bool = True
     ) -> ReviewResult:
-        """启动CLI工具审查流程（新API）
+        """启动CLI工具审查流程（支持两阶段审查）
 
         Args:
             review_index_path: MCP客户端生成的ReviewIndex.md临时文件路径
             draft_paths: MCP客户端生成的任务文件临时路径列表（按任务顺序）
             max_iterations: 最大迭代轮次（默认3，未来扩展）
             initiator: 发起审查的客户端名称（如ClaudeCode、Cursor等）
+            original_requirement_path: OriginalRequirement.md临时文件路径（可选）
+            task_planning_path: TaskPlanning.md临时文件路径（可选）
+            enable_two_stage_review: 是否启用两阶段审查（默认True）
 
         Returns:
             ReviewResult instance with review data and parsed report
@@ -64,18 +70,30 @@ class CliWorkflowManager:
         session_dir = self._create_session_dir()
 
         try:
-            # 2. 提前加载config获取审阅者名称
+            # 2. 验证两阶段审查参数
+            if enable_two_stage_review:
+                if not original_requirement_path or not task_planning_path:
+                    # 如果启用两阶段审查但缺少文件，回退到单阶段模式
+                    enable_two_stage_review = False
+
+            # 3. 提前加载config获取审阅者名称
             config = get_current_config(self.project_root)
             command_builder = CommandBuilder(config)
             reviewer = command_builder.get_display_name()
 
-            # 3. 复制文件到session目录并统一编码，注入元数据
+            # 4. 复制文件到session目录并统一编码，注入元数据
             file_gen = FileGenerator(session_dir, project_root=self.project_root)
+
             review_file, task_files = file_gen.copy_files_to_session(
-                review_index_path, draft_paths, initiator=initiator, reviewer=reviewer
+                review_index_path,
+                draft_paths,
+                initiator=initiator,
+                reviewer=reviewer,
+                original_requirement_path=original_requirement_path,
+                task_planning_path=task_planning_path
             )
 
-            # 4. 启动CLI工具审查
+            # 5. 启动CLI工具审查
             cli_reviewer = CliReviewer()
             result = await cli_reviewer.start_review(
                 session_dir=str(session_dir),

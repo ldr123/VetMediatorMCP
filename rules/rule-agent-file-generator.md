@@ -3,14 +3,19 @@
 **触发词**：`使用vet验证` 或 `让vet帮我验证` 或 `使用CLI工具交叉验证`
 
 **执行步骤**：
-1. 生成ReviewIndex.md（审查索引）
-2. 为每个任务生成独立的文件：Task1_XXX.md, Task2_XXX.md, ...
-3. 调用MCP工具：`mcp__vet-mediator-mcp__start_review`
+1. 生成OriginalRequirement.md（用户原始需求）
+2. 生成TaskPlanning.md（任务规划方案）
+3. 生成ReviewIndex.md（审查索引）
+4. 为每个任务生成独立的文件：Task1_XXX.md, Task2_XXX.md, ...
+5. 调用MCP工具：`mcp__vet-mediator-mcp__start_review`
    - 必需参数：
      - `review_index_path`: ReviewIndex.md的临时文件路径
      - `draft_paths`: 任务文件路径列表（按顺序）
      - `project_root`: 项目根目录绝对路径
-   - 推荐参数：
+   - 推荐参数（启用两阶段审查）：
+     - `original_requirement_path`: OriginalRequirement.md的临时文件路径
+     - `task_planning_path`: TaskPlanning.md的临时文件路径
+     - `enable_two_stage_review`: true（启用两阶段审查，默认true）
      - `initiator`: 发起审查的AI工具名称（如"Claude Code"、"Cursor"等），用于在报告中标识来源
    - 可选参数：
      - `max_iterations`: 最大迭代轮次（默认3，未来扩展）
@@ -21,10 +26,125 @@
 
 
 **[重要!!!]临时文件命名约定**:
+- OriginalRequirement.md: `OriginalRequirement-{random}.md`
+- TaskPlanning.md: `TaskPlanning-{random}.md`
 - ReviewIndex.md: `ReviewIndex-{random}.md`
 - 任务文件: `{TargetName}-{random}.md`（如 `Task1_LoginUpgrade-abc123.md`）
 - MCP服务器会自动提取目标文件名（截取最后一个"-"前的部分）
 - 将临时文件写入VetMediatorSessions/tmp目录（如果目录不存在就生成），注意：一定要生成到这个目录，而不是生成到系统临时目录(比如~/)
+
+---
+
+## OriginalRequirement.md格式
+
+### 模板
+
+```markdown
+# 用户原始需求
+
+## 用户输入（Verbatim）
+[完整保留用户的原话，一字不改，包括：
+- 初始需求描述
+- 多轮对话中的补充说明
+- 用户强调的重点
+- 用户提到的约束条件]
+
+## 对话上下文
+[如果有多轮对话，记录关键的澄清过程：
+Q: [AI代理的疑问]
+A: [用户的回答]
+...]
+
+## 隐含需求推断
+[AI代理基于经验推断出的隐含需求：
+- 非功能性需求（性能、安全、可维护性）
+- 行业最佳实践
+- 与现有系统的兼容性考虑]
+
+## 边界与非需求
+[明确指出哪些是NOT在范围内的：
+- 用户明确不需要的功能
+- 延后处理的需求
+- 超出技术范围的部分]
+```
+
+### 填写说明
+
+| 章节 | 说明 | 要求 |
+|-----|------|------|
+| 用户输入（Verbatim） | 原封不动地保留用户的原话 | 必填，不要改写或润色 |
+| 对话上下文 | 多轮对话的关键澄清 | 如有多轮对话则必填 |
+| 隐含需求推断 | AI推断的未明说需求 | 可选，但推荐填写 |
+| 边界与非需求 | 明确不做什么 | 可选，但有助于审查员理解范围 |
+
+---
+
+## TaskPlanning.md格式
+
+### 模板
+
+```markdown
+# 任务规划方案
+
+## 需求分析
+### 核心目标
+[用1-2句话概括最核心的目标]
+
+### 关键约束
+- 技术栈约束：[例如：必须使用.NET 8]
+- 时间约束：[例如：需要在2周内完成]
+- 兼容性约束：[例如：需要兼容旧版API]
+
+### 预期产出
+[列出最终交付物]
+
+## 技术方案选型
+### 方案对比
+| 方案 | 优点 | 缺点 | 是否采用 |
+|-----|------|------|---------|
+| 方案A | ... | ... | ✅ |
+| 方案B | ... | ... | ❌ 理由... |
+
+### 最终选型依据
+[说明为什么选择当前方案]
+
+## 任务拆分
+### 拆分原则
+- 按[模块/功能/层次/依赖]进行拆分
+- 每个任务的粒度控制在[X]小时内完成
+
+### 任务列表
+| 编号 | 任务名 | 目标 | 依赖 | 风险 |
+|-----|--------|------|------|------|
+| 1 | Task1_XXX | [目标] | 无 | [风险评估] |
+| 2 | Task2_XXX | [目标] | Task1 | [风险评估] |
+
+### 任务依赖图
+```
+Task1 → Task2 ─┐
+         ↓     ├→ Task4
+       Task3 ──┘
+```
+
+### 替代方案（未采用）
+[说明有哪些其他拆分方式，为什么不选择：
+- 方案X：[原因]
+- 方案Y：[原因]]
+
+## 风险评估
+| 风险 | 影响 | 概率 | 缓解措施 |
+|-----|------|------|---------|
+| [风险1] | 高 | 中 | [措施] |
+```
+
+### 填写说明
+
+| 章节 | 说明 | 要求 |
+|-----|------|------|
+| 需求分析 | 对用户需求的结构化分析 | 必填 |
+| 技术方案选型 | 说明为什么选择这个技术方案 | 必填，必须包含方案对比 |
+| 任务拆分 | 详细的任务拆分计划 | 必填，任务列表必须与ReviewIndex一致 |
+| 风险评估 | 识别潜在风险和缓解措施 | 推荐填写 |
 
 ---
 
@@ -264,35 +384,64 @@ def refresh_access_token(refresh_token):
 
 生成所有文件后，调用MCP工具：
 
-**工具名**: `mcp__codex-review-mcp__start_review`
+**工具名**: `mcp__vet-mediator-mcp__start_review`
 
 **必需参数**:
 - `review_index_path`: ReviewIndex.md临时文件的绝对路径（string）
 - `draft_paths`: 任务文件临时路径列表（List[string]），按任务顺序排列
 - `project_root`: 项目根目录的绝对路径（string）
 
+**推荐参数（启用两阶段审查）**:
+- `original_requirement_path`: OriginalRequirement.md临时文件的绝对路径（string）
+- `task_planning_path`: TaskPlanning.md临时文件的绝对路径（string）
+- `enable_two_stage_review`: 是否启用两阶段审查（bool，默认true）
+- `initiator`: 发起审查的AI工具名称（string，默认"Unknown"）
+
 **调用示例**:
 ```python
-mcp__codex-review-mcp__start_review(
-    review_index_path="/tmp/ReviewIndex-abc123.md",
+# 启用两阶段审查（推荐）
+mcp__vet-mediator-mcp__start_review(
+    review_index_path="/path/to/VetMediatorSessions/tmp/ReviewIndex-abc123.md",
     draft_paths=[
-        "/tmp/Task1_LoginUpgrade-abc123.md",
-        "/tmp/Task2_RefreshEndpoint-abc123.md"
+        "/path/to/VetMediatorSessions/tmp/Task1_LoginUpgrade-abc123.md",
+        "/path/to/VetMediatorSessions/tmp/Task2_RefreshEndpoint-abc123.md"
     ],
-    project_root="/path/to/project"
+    project_root="/path/to/project",
+    original_requirement_path="/path/to/VetMediatorSessions/tmp/OriginalRequirement-abc123.md",
+    task_planning_path="/path/to/VetMediatorSessions/tmp/TaskPlanning-abc123.md",
+    enable_two_stage_review=true,
+    initiator="Claude Code"
+)
+
+# 兼容旧模式（不启用两阶段审查）
+mcp__vet-mediator-mcp__start_review(
+    review_index_path="/path/to/VetMediatorSessions/tmp/ReviewIndex-abc123.md",
+    draft_paths=[
+        "/path/to/VetMediatorSessions/tmp/Task1_LoginUpgrade-abc123.md",
+        "/path/to/VetMediatorSessions/tmp/Task2_RefreshEndpoint-abc123.md"
+    ],
+    project_root="/path/to/project",
+    enable_two_stage_review=false
 )
 ```
 
-**MCP工作流程**:
+**MCP工作流程（两阶段审查）**:
 1. 验证所有文件路径存在
 2. 提取目标文件名并验证格式
 3. 复制文件到session目录（自动处理BOM，统一输出UTF-8无BOM）
-4. 替换ReviewIndex.md中的占位符，注入完整的审查规则
-5. 启动CLI工具进程执行审查
-6. 监控进度，生成report.md
-7. 返回审查结果
+4. **Stage 1: 需求与规划审查**
+   - 替换ReviewIndex.md中的占位符，注入Stage1审查规则
+   - 启动CLI工具审查OriginalRequirement.md和TaskPlanning.md
+   - 生成stage1_report.md
+   - 如果Stage1未通过，直接返回拒绝结果
+5. **Stage 2: 代码实现审查**
+   - 替换ReviewIndex.md中的占位符，注入Stage2审查规则
+   - 启动CLI工具审查所有Task文件的代码实现
+   - 生成stage2_report.md
+6. 返回两阶段审查结果
 
 **注意事项**:
 - draft_paths数组顺序必须与ReviewIndex.md表格中的任务顺序一致
 - 文件名必须严格遵循`Task{N}_{Description}.md`格式
 - Description中不能包含连字符"-"
+- 启用两阶段审查时，必须提供original_requirement_path和task_planning_path
