@@ -88,6 +88,23 @@ AI agent parses report and decides next actions:
 
 ---
 
+## 📚 Real Project Example
+
+Want to see how VetMediator works in a real project?
+
+👉 **[View Complete Example: Unity Project Code Review](../sample/README.md)**
+
+This example demonstrates:
+- Claude Code uses ultrathink for deep Unity code analysis
+- Generates 8 detailed refactoring task files
+- iFlow performs 310-second comprehensive review
+- Identifies and fixes 4 P0-level critical bugs
+- Complete interactive feedback workflow
+
+Includes 18 real screenshots showing the entire process from analysis to review completion!
+
+---
+
 ## 🔧 CLI Tool Configuration Management
 
 ### View Tool Status

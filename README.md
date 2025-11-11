@@ -99,6 +99,20 @@ Complete English guide
 
 ---
 
+## 📚 Real Project Example / 真实项目示例
+
+Want to see VetMediator in action? Check out our complete example!
+想看看VetMediator的实际效果？查看完整示例！
+
+👉 **[Unity Project Code Review Example / Unity项目代码审查示例](docs/sample/README.md)**
+
+- 🎯 Claude Code + iFlow workflow / Claude Code + iFlow 工作流
+- 🐛 4 P0-level bugs fixed / 修复4个P0级别BUG
+- ⏱️ 310-second comprehensive review / 310秒全面审查
+- 📸 18 real screenshots / 18张真实截图
+
+---
+
 ## 🔗 Links / 链接
 
 - **Repository / 代码仓库**:
