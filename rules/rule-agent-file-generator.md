@@ -12,10 +12,9 @@
      - `review_index_path`: ReviewIndex.md的临时文件路径
      - `draft_paths`: 任务文件路径列表（按顺序）
      - `project_root`: 项目根目录绝对路径
-   - 推荐参数（启用两阶段审查）：
-     - `original_requirement_path`: OriginalRequirement.md的临时文件路径
-     - `task_planning_path`: TaskPlanning.md的临时文件路径
-     - `enable_two_stage_review`: true（启用两阶段审查，默认true）
+   - 推荐参数（提供完整审查上下文）：
+     - `original_requirement_path`: OriginalRequirement.md的临时文件路径（可选但强烈推荐）
+     - `task_planning_path`: TaskPlanning.md的临时文件路径（可选但强烈推荐）
      - `initiator`: 发起审查的AI工具名称（如"Claude Code"、"Cursor"等），用于在报告中标识来源
    - 可选参数：
      - `max_iterations`: 最大迭代轮次（默认3，未来扩展）
@@ -387,19 +386,17 @@ def refresh_access_token(refresh_token):
 **工具名**: `mcp__vet-mediator-mcp__start_review`
 
 **必需参数**:
-- `review_index_path`: ReviewIndex.md临时文件的绝对路径（string）
-- `draft_paths`: 任务文件临时路径列表（List[string]），按任务顺序排列
-- `project_root`: 项目根目录的绝对路径（string）
+- `review_index_path`: ReviewIndex.md的临时文件路径
+- `draft_paths`: 任务文件路径列表（按顺序）
+- `project_root`: 项目根目录绝对路径
+- `original_requirement_path`: OriginalRequirement.md的临时文件路径（**必须提供**）
+- `task_planning_path`: TaskPlanning.md的临时文件路径（**必须提供**）
 
-**推荐参数（启用两阶段审查）**:
-- `original_requirement_path`: OriginalRequirement.md临时文件的绝对路径（string）
-- `task_planning_path`: TaskPlanning.md临时文件的绝对路径（string）
-- `enable_two_stage_review`: 是否启用两阶段审查（bool，默认true）
-- `initiator`: 发起审查的AI工具名称（string，默认"Unknown"）
+**推荐参数**:
+- `initiator`: 发起审查的AI工具名称（如"Claude Code"、"Cursor"等），用于在报告中标识来源
 
 **调用示例**:
 ```python
-# 启用两阶段审查（推荐）
 mcp__vet-mediator-mcp__start_review(
     review_index_path="/path/to/VetMediatorSessions/tmp/ReviewIndex-abc123.md",
     draft_paths=[
@@ -409,39 +406,28 @@ mcp__vet-mediator-mcp__start_review(
     project_root="/path/to/project",
     original_requirement_path="/path/to/VetMediatorSessions/tmp/OriginalRequirement-abc123.md",
     task_planning_path="/path/to/VetMediatorSessions/tmp/TaskPlanning-abc123.md",
-    enable_two_stage_review=true,
     initiator="Claude Code"
-)
-
-# 兼容旧模式（不启用两阶段审查）
-mcp__vet-mediator-mcp__start_review(
-    review_index_path="/path/to/VetMediatorSessions/tmp/ReviewIndex-abc123.md",
-    draft_paths=[
-        "/path/to/VetMediatorSessions/tmp/Task1_LoginUpgrade-abc123.md",
-        "/path/to/VetMediatorSessions/tmp/Task2_RefreshEndpoint-abc123.md"
-    ],
-    project_root="/path/to/project",
-    enable_two_stage_review=false
 )
 ```
 
-**MCP工作流程（两阶段审查）**:
+**MCP工作流程**:
 1. 验证所有文件路径存在
 2. 提取目标文件名并验证格式
-3. 复制文件到session目录（自动处理BOM，统一输出UTF-8无BOM）
-4. **Stage 1: 需求与规划审查**
-   - 替换ReviewIndex.md中的占位符，注入Stage1审查规则
-   - 启动CLI工具审查OriginalRequirement.md和TaskPlanning.md
-   - 生成stage1_report.md
-   - 如果Stage1未通过，直接返回拒绝结果
-5. **Stage 2: 代码实现审查**
-   - 替换ReviewIndex.md中的占位符，注入Stage2审查规则
-   - 启动CLI工具审查所有Task文件的代码实现
-   - 生成stage2_report.md
-6. 返回两阶段审查结果
+3. 复制所有文件到session目录（自动处理BOM，统一输出UTF-8无BOM）
+   - OriginalRequirement.md（如果提供）- 用户原始需求
+   - TaskPlanning.md（如果提供）- AI任务拆分思路
+   - ReviewIndex.md - 任务列表索引
+   - Task*.md - 所有任务实现
+4. 替换ReviewIndex.md中的占位符，注入完整审查规则
+   - 如果提供了OriginalRequirement和TaskPlanning，审查规则会引导审查员先验证任务拆分的合理性
+5. 启动CLI工具进行一次性整体审查
+   - 审查员先验证任务拆分是否合理（如果有规划文档）
+   - 再审查每个任务的代码实现
+6. 生成完整的report.md
+7. 返回审查结果
 
 **注意事项**:
 - draft_paths数组顺序必须与ReviewIndex.md表格中的任务顺序一致
 - 文件名必须严格遵循`Task{N}_{Description}.md`格式
 - Description中不能包含连字符"-"
-- 启用两阶段审查时，必须提供original_requirement_path和task_planning_path
+- 提供original_requirement_path和task_planning_path可以让审查员验证任务拆分的合理性

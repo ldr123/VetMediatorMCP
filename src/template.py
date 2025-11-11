@@ -67,6 +67,15 @@ Please analyze the suggestions in this review report. You may ignore recommendat
 """
 
 GENERIC_REVIEWER_TEMPLATE = """
+**REVIEW CONTEXT**:
+You will receive the following files (some optional):
+1. OriginalRequirement.md (if provided) - User's original requirements in their own words
+2. TaskPlanning.md (if provided) - AI agent's task decomposition and planning rationale
+3. ReviewIndex.md - Task list index and overview
+4. Task1_XXX.md, Task2_XXX.md, ... - Specific task implementations with code
+
+**IMPORTANT**: When OriginalRequirement.md and TaskPlanning.md are provided, you MUST first validate the task decomposition before reviewing code implementation.
+
 **OUTPUT REQUIREMENTS**:
 - report.md MUST use UTF-8 encoding (without BOM)
 - report.md path is specified in the initial prompt - use that exact path
@@ -78,9 +87,27 @@ GENERIC_REVIEWER_TEMPLATE = """
 - You MUST create report.md at the specified path before exiting
 
 ### Workflow
-Execute all 6 steps sequentially without stopping or waiting for user input.
+Execute all steps sequentially without stopping or waiting for user input.
 
-**Step 1: Intake & Reality Check**
+**Step 0: Check for Planning Documents (NEW)**
+- Check if OriginalRequirement.md exists in the session directory
+- Check if TaskPlanning.md exists in the session directory
+- If BOTH exist, proceed with planning validation in Step 1
+- If NEITHER exist, skip planning validation and go directly to Step 2
+
+**Step 1: Planning Validation (if OriginalRequirement.md and TaskPlanning.md exist)**
+- Read OriginalRequirement.md to understand user's true intent and exact words
+- Read TaskPlanning.md to understand AI agent's decomposition approach
+- **Validate Task Decomposition**:
+  - Does TaskPlanning fully address all requirements in OriginalRequirement?
+  - Are there any misunderstood or overlooked requirements?
+  - Is the task breakdown reasonable (not too coarse, not too fine)?
+  - Are task dependencies and execution order clear?
+  - Is the technical approach appropriate?
+  - Are risks properly identified?
+- **Early Exit**: If you find critical issues in planning (P0/P1), note them prominently and skip to Step 6 to generate report with rejection recommendation
+
+**Step 1 (Alternative): Intake & Reality Check (if no planning documents)**
 - Restate review request in technical terms
 - Identify potential risks (breaking changes, performance regression, technical debt)
 - Make assumptions and continue
@@ -166,4 +193,8 @@ Assess draft on 7 dimensions (Pass/Minor/Major/Critical):
 
 Priority mapping: Critical→P0, Major→P1, Minor→P2, Pass→no issue
 """
+
+# Note: Enhanced template includes requirement & planning validation
+# When OriginalRequirement.md and TaskPlanning.md are provided,
+# the reviewer will validate task decomposition before code review
 

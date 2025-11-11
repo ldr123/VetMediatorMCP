@@ -31,16 +31,22 @@ class FileGenerator:
         self.session_dir = Path(session_dir)
         self.project_root = Path(project_root)
 
-    def _expand_placeholders(self, text: str, initiator: Optional[str] = None, reviewer: Optional[str] = None) -> str:
+    def _expand_placeholders(
+        self,
+        text: str,
+        initiator: Optional[str] = None,
+        reviewer: Optional[str] = None
+    ) -> str:
         """替换文本中的占位符为完整的审查规则和元数据。
 
         占位符系统：
-        - {{INJECT:REVIEWER_INSTRUCTIONS}} → 完整的六步工作流和七维质量标准
+        - {{INJECT:REVIEWER_INSTRUCTIONS}} → 完整的审查规则（增强版，包含规划验证）
         - {{INJECT:REPORT_FORMAT}} → 完整的report.md格式规范（包含元数据占位符）
         - {{INITIATOR}} → 发起者名称（在REPORT_FORMAT中）
         - {{REVIEWER}} → 审阅者名称（在REPORT_FORMAT中）
 
-        使用通用模板GENERIC_REVIEWER_TEMPLATE（agent-agnostic设计）。
+        使用增强的GENERIC_REVIEWER_TEMPLATE（agent-agnostic设计）。
+        当OriginalRequirement.md和TaskPlanning.md存在时，审查员会先验证规划再审查代码。
 
         这使MCP客户端能够生成轻量级文件（~2k tokens），
         而审查工具获得完整规则（~15-20k tokens）。
@@ -100,7 +106,11 @@ class FileGenerator:
         """
         # 1. 读取ReviewIndex.md
         review_text = EncodingDetector.read_file(Path(review_index_path), support_bom=True)
-        review_text = self._expand_placeholders(review_text, initiator=initiator, reviewer=reviewer)
+        review_text = self._expand_placeholders(
+            review_text,
+            initiator=initiator,
+            reviewer=reviewer
+        )
 
         # 2. 写入ReviewIndex.md到会话目录
         review_file = self.session_dir / "ReviewIndex.md"

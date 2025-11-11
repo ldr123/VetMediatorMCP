@@ -42,10 +42,6 @@ class StartReviewArgs(BaseModel):
         default=None,
         description="TaskPlanning.md临时文件绝对路径（启用两阶段审查时推荐提供）"
     )
-    enable_two_stage_review: bool = Field(
-        default=True,
-        description="是否启用两阶段审查（Stage1: 需求与规划，Stage2: 代码实现），默认true"
-    )
 
 
 class ShowCliConfigArgs(BaseModel):
@@ -109,8 +105,7 @@ async def call_tool(name: str, arguments: Any) -> list[TextContent]:
                 max_iterations=args.max_iterations,
                 initiator=args.initiator,
                 original_requirement_path=args.original_requirement_path,
-                task_planning_path=args.task_planning_path,
-                enable_two_stage_review=args.enable_two_stage_review
+                task_planning_path=args.task_planning_path
             )
 
             # Format result as text response
