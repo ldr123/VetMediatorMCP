@@ -68,7 +68,7 @@ Complete English guide
       "command": "uvx",
       "args": [
         "--from",
-        "git+https://github.com/ldr123/VetMediatorMCP",
+        "git+https://github.com/ldr123/VetMediatorMCP.git",
         "vet-mediator-mcp"
       ]
     }
@@ -78,7 +78,7 @@ Complete English guide
 
 **China Mirror / 中国镜像**:
 ```json
-"git+https://gitee.com/ldr123/VetMediatorMCP"
+"git+https://gitee.com/ldr123/VetMediatorMCP.git"
 ```
 
 📚 **For detailed instructions, see documentation above**

@@ -138,7 +138,7 @@ AI代理解析报告并决定后续动作：
       "command": "uvx",
       "args": [
         "--from",
-        "git+https://gitee.com/ldr123/VetMediatorMCP",
+        "git+https://gitee.com/ldr123/VetMediatorMCP.git",
         "vet-mediator-mcp"
       ]
     }
@@ -148,7 +148,7 @@ AI代理解析报告并决定后续动作：
 
 **国际区**：如果不想使用gitee可以使用GitHub镜像：
 ```json
-"git+https://github.com/ldr123/VetMediatorMCP"
+"git+https://github.com/ldr123/VetMediatorMCP.git"
 ```
 
 **方式二：本地开发安装**

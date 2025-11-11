@@ -138,7 +138,7 @@ Create `.mcp.json` in project root:
       "command": "uvx",
       "args": [
         "--from",
-        "git+https://gitee.com/ldr123/VetMediatorMCP",
+        "git+https://gitee.com/ldr123/VetMediatorMCP.git",
         "vet-mediator-mcp"
       ]
     }
@@ -148,7 +148,7 @@ Create `.mcp.json` in project root:
 
 **International Region**: If you don't want to use Gitee, use GitHub mirror:
 ```json
-"git+https://github.com/ldr123/VetMediatorMCP"
+"git+https://github.com/ldr123/VetMediatorMCP.git"
 ```
 
 **Method 2: Local Development Installation**

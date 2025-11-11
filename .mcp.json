@@ -23,7 +23,7 @@
            "command": "uvx",
            "args": [
               "--from",
-              "git+https://gitee.com/ldr123/VetMediatorMCP",
+              "git+https://gitee.com/ldr123/VetMediatorMCP.git",
               "vet-mediator-mcp"
       ]
         }
