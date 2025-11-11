@@ -146,7 +146,9 @@ AI代理解析报告并决定后续动作：
 
 **方式一：从Git仓库安装（推荐）**
 
-在项目根目录创建`.mcp.json`：
+📋 **步骤1：复制MCP配置到项目根目录**
+
+从本仓库复制 `rules/.mcp.json` 到你的项目根目录并命名为 `.mcp.json`：
 
 ```json
 {
@@ -166,6 +168,83 @@ AI代理解析报告并决定后续动作：
 **国际区**：如果不想使用gitee可以使用GitHub镜像：
 ```json
 "git+https://github.com/ldr123/VetMediatorMCP.git"
+```
+
+📋 **步骤2：添加VetMediator配置到AI工具的规则文件**
+
+查看本仓库的 `rules/CLAUDE.md` 文件内容，并将其添加到你的AI工具规则文件的**开头部分**。
+
+**不同AI工具的配置方式**:
+
+| AI工具 | 规则文件 | 位置 | 说明 |
+|--------|---------|------|------|
+| **Claude Code** | `CLAUDE.md` | 项目根目录 | 系统预设 |
+| **Cursor** | `*.mdc` | `.cursor/rules/` | 多级优先级，自动加载 |
+| **Codex** | `AGENTS.md` | 项目根目录 | 支持全局与项目级 |
+| **iFlow** | `IFLOW.md` | 项目根目录 | 支持包含其他文件 |
+| **Gemini CLI** | `GEMINI.md` | 项目根目录 | 支持模块级规则 |
+
+**Claude Code配置示例**:
+- 将 `rules/CLAUDE.md` 的内容复制到项目根目录的 `CLAUDE.md` **开头部分**
+- 如果项目还没有 `CLAUDE.md` 文件，创建一个并粘贴内容
+
+**Cursor配置示例**:
+- 在项目中创建 `.cursor/rules/vetmediator.mdc`
+- 将 `rules/CLAUDE.md` 的内容复制进去
+
+**Codex配置示例**:
+- 将 `rules/CLAUDE.md` 的内容复制到项目根目录的 `AGENTS.md` **开头部分**
+
+**iFlow配置示例**:
+- 将 `rules/CLAUDE.md` 的内容复制到项目根目录的 `IFLOW.md` **开头部分**
+
+**Gemini CLI配置示例**:
+- 将 `rules/CLAUDE.md` 的内容复制到项目根目录的 `GEMINI.md` **开头部分**
+
+此内容包含AI工具使用VetMediator的触发词和执行步骤。
+
+📋 **步骤3：复制任务生成规则到项目**
+
+从本仓库复制 `rules/rule-agent-file-generator.md` 到你的项目的 `rules/` 目录
+
+📋 **步骤4：更新AI工具规则文件中的路径引用**
+
+⚠️ **重要**: 复制 `rules/CLAUDE.md` 的内容后，你需要**更新**AI工具规则文件中的文件路径。
+
+**`rules/CLAUDE.md` 中的原始内容**:
+```markdown
+1. 读取规则文件：`rule-agent-file-generator.md`（与本文件位于同一目录）
+```
+
+**你需要修改为**:
+
+如果你将 `rule-agent-file-generator.md` 放在 `rules/` 目录:
+
+```markdown
+1. 读取规则文件：`rules/rule-agent-file-generator.md`
+```
+
+或者，如果你放在其他目录，相应更新路径：
+
+```markdown
+1. 读取规则文件：`path/to/your/rule-agent-file-generator.md`
+```
+
+**不同位置的示例**:
+- 如果在 `rules/` 目录: `rules/rule-agent-file-generator.md`
+- 如果在 `docs/` 目录: `docs/rule-agent-file-generator.md`
+- 如果在项目根目录: `rule-agent-file-generator.md`
+- 如果在 `.cursor/rules/` 目录（Cursor用户）: `rule-agent-file-generator.md`（同目录）
+
+⚠️ **重要**: AI工具规则文件引用了 `rule-agent-file-generator.md`。你可以将 `rule-agent-file-generator.md` 放在任何目录，但需要相应更新路径引用。
+
+**文件位置总结**:
+```
+YourProject/
+├── .mcp.json                           # MCP服务器配置
+├── CLAUDE.md (或 AGENTS.md 等)        # AI工具规则文件（将VetMediator配置添加到开头）
+└── rules/
+    └── rule-agent-file-generator.md    # 任务生成规则
 ```
 
 **方式二：本地开发安装**
@@ -277,7 +356,9 @@ npm install -g @anthropic-ai/claude-code
 
 ### 在AI代理中配置使用规则
 
-在项目根目录创建`CLAUDE.md`（以Claude Code为例）：
+查看本仓库的 `rules/CLAUDE.md` 文件内容，并将其复制到你的项目根目录的 `CLAUDE.md` 文件的**开头部分**（如果在安装MCP服务器时已添加，跳过此步骤）。
+
+`CLAUDE.md` 应包含以下内容：
 
 ```markdown
 ## 🤝 CLI工具交叉验证

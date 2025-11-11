@@ -5,7 +5,7 @@
 **触发词**：`使用vet验证` 或 `让vet帮我验证` 或 `使用CLI工具交叉验证`
 
 **执行步骤**：
-1. 读取规则文件：`rules/rule-agent-file-generator.md`
+1. 读取规则文件：`rule-agent-file-generator.md`（与本文件位于同一目录）
 2. 按规则生成ReviewIndex.md和多个任务文件（UTF-8编码）
 3. 调用MCP工具：`mcp__vet-mediator-mcp__start_review`
    - 必需参数：`review_index_path`、`draft_paths`、`project_root`

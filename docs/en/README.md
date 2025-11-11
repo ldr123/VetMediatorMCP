@@ -146,7 +146,9 @@ Tool switch completed, interface auto-refreshes:
 
 **Method 1: Install from Git Repository (Recommended)**
 
-Create `.mcp.json` in project root:
+📋 **Step 1: Copy MCP configuration to your project root**
+
+Copy `rules/.mcp.json` from this repository to your project root directory as `.mcp.json`:
 
 ```json
 {
@@ -166,6 +168,83 @@ Create `.mcp.json` in project root:
 **International Region**: If you don't want to use Gitee, use GitHub mirror:
 ```json
 "git+https://github.com/ldr123/VetMediatorMCP.git"
+```
+
+📋 **Step 2: Add VetMediator configuration to your AI tool's rule file**
+
+View the content of `rules/CLAUDE.md` in this repository, and add it to your AI tool's rule file **at the beginning**.
+
+**Configuration for different AI tools**:
+
+| AI Tool | Rule File | Location | Notes |
+|---------|-----------|----------|-------|
+| **Claude Code** | `CLAUDE.md` | Project root | System default |
+| **Cursor** | `*.mdc` | `.cursor/rules/` | Multi-level priority, auto-load |
+| **Codex** | `AGENTS.md` | Project root | Supports global & project level |
+| **iFlow** | `IFLOW.md` | Project root | Supports including other files |
+| **Gemini CLI** | `GEMINI.md` | Project root | Supports module-level rules |
+
+**Example for Claude Code**:
+- Copy the content of `rules/CLAUDE.md` to the **beginning** of your project's `CLAUDE.md`
+- If your project doesn't have a `CLAUDE.md` file yet, create one and paste the content
+
+**Example for Cursor**:
+- Create `.cursor/rules/vetmediator.mdc` in your project
+- Copy the content of `rules/CLAUDE.md` into it
+
+**Example for Codex**:
+- Copy the content of `rules/CLAUDE.md` to the **beginning** of your project's `AGENTS.md`
+
+**Example for iFlow**:
+- Copy the content of `rules/CLAUDE.md` to the **beginning** of your project's `IFLOW.md`
+
+**Example for Gemini CLI**:
+- Copy the content of `rules/CLAUDE.md` to the **beginning** of your project's `GEMINI.md`
+
+This content includes trigger words and execution steps for the AI tool to use VetMediator.
+
+📋 **Step 3: Copy task generation rules to your project**
+
+Copy `rules/rule-agent-file-generator.md` from this repository to your project's `rules/` directory
+
+📋 **Step 4: Update the path reference in your AI tool's rule file**
+
+⚠️ **Important**: After copying the content from `rules/CLAUDE.md`, you need to **update the file path** in your AI tool's rule file.
+
+**Original line in `rules/CLAUDE.md`**:
+```markdown
+1. 读取规则文件：`rule-agent-file-generator.md`（与本文件位于同一目录）
+```
+
+**What you need to change**:
+
+If you placed `rule-agent-file-generator.md` in `rules/` directory:
+
+```markdown
+1. 读取规则文件：`rules/rule-agent-file-generator.md`
+```
+
+Or, if you placed it in another directory, update the path accordingly:
+
+```markdown
+1. 读取规则文件：`path/to/your/rule-agent-file-generator.md`
+```
+
+**Example for different locations**:
+- If in `rules/` folder: `rules/rule-agent-file-generator.md`
+- If in `docs/` folder: `docs/rule-agent-file-generator.md`
+- If in project root: `rule-agent-file-generator.md`
+- If in `.cursor/rules/` folder (for Cursor): `rule-agent-file-generator.md` (same directory)
+
+⚠️ **Important**: The AI tool's rule file references `rule-agent-file-generator.md`. You can place `rule-agent-file-generator.md` in any directory, but make sure to update the path reference accordingly.
+
+**File locations summary**:
+```
+YourProject/
+├── .mcp.json                           # MCP server configuration
+├── CLAUDE.md (or AGENTS.md, etc.)     # AI tool rule file (add VetMediator config to beginning)
+└── rules/
+    └── rule-agent-file-generator.md    # Task generation rules
 ```
 
 **Method 2: Local Development Installation**
@@ -277,7 +356,9 @@ npm install -g @anthropic-ai/claude-code
 
 ### Configure Usage Rules in AI Agent
 
-Create `CLAUDE.md` in project root (using Claude Code as example):
+View the content of `rules/CLAUDE.md` in this repository, and copy it to the **beginning** of your project's `CLAUDE.md` file (in your project root directory). Skip this step if you've already added it during MCP server installation.
+
+Your `CLAUDE.md` should contain the following content:
 
 ```markdown
 ## 🤝 CLI Tool Cross-Validation
