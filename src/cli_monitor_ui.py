@@ -145,22 +145,52 @@ class CliMonitorWindow(QMainWindow):
         """创建顶部工具栏（文件链接 + 退出按钮）"""
         toolbar_layout = QHBoxLayout()
 
-        # 左侧：文件链接按钮（动态创建）
-        file_links_layout = QHBoxLayout()
-        file_links_layout.setSpacing(10)
+        # 左侧：文件链接按钮（动态创建，支持自动换行）
+        file_links_container = QVBoxLayout()
+        file_links_container.setSpacing(5)
 
-        # 为每个文件创建按钮
+        # 80字符换行限制
+        MAX_LINE_LENGTH = 80
+        # 每个按钮额外占用的空间（padding、间距等，估算）
+        BUTTON_OVERHEAD = 3
+
+        current_line_layout = QHBoxLayout()
+        current_line_layout.setSpacing(10)
+        current_line_length = 0
+
+        # 为每个文件创建按钮，自动换行
         for file_path in self.file_paths:
-            file_btn = QPushButton(file_path.name)
+            file_name = file_path.name
+            # 计算按钮占用的字符数（文件名长度 + 额外开销）
+            button_length = len(file_name) + BUTTON_OVERHEAD
+
+            # 检查是否需要换行
+            if current_line_length > 0 and current_line_length + button_length > MAX_LINE_LENGTH:
+                # 当前行已满，添加到容器并创建新行
+                current_line_layout.addStretch()
+                file_links_container.addLayout(current_line_layout)
+
+                current_line_layout = QHBoxLayout()
+                current_line_layout.setSpacing(10)
+                current_line_length = 0
+
+            # 创建按钮
+            file_btn = QPushButton(file_name)
             file_btn.setFlat(True)
             file_btn.setStyleSheet(LINK_BUTTON_STYLE)
             # 使用默认参数捕获file_path，避免闭包问题
             file_btn.clicked.connect(
                 lambda checked=False, fp=file_path: self._open_file(fp)
             )
-            file_links_layout.addWidget(file_btn)
+            current_line_layout.addWidget(file_btn)
+            current_line_length += button_length
 
-        toolbar_layout.addLayout(file_links_layout)
+        # 添加最后一行
+        if current_line_length > 0:
+            current_line_layout.addStretch()
+            file_links_container.addLayout(current_line_layout)
+
+        toolbar_layout.addLayout(file_links_container)
         toolbar_layout.addStretch()  # 弹性空间，将右侧按钮推到最右边
 
         # 右侧：查看按钮 + 退出按钮
