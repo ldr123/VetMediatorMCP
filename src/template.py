@@ -1,0 +1,169 @@
+"""
+CLI Review Workflow Templates
+
+This module embeds the complete CLI review rules and report format templates.
+These templates are dynamically injected into ReviewIndex.md by the MCP server,
+enabling MCP clients to generate lightweight files while the CLI tool receives full rules.
+
+Version: 3.0.0
+"""
+
+VERSION = "3.0.0"
+
+REPORT_FORMAT_TEMPLATE = """### Report Format
+Save review results to `report.md` using this exact format:
+
+```markdown
+# Review Report
+
+## Status
+approved | major_issues | minor_issues
+
+## Issues Found
+
+### P0 - Critical Issues
+- [Issue with file:line, must fix]
+
+### P1 - Major Issues
+- [Issue with file:line, recommend fix]
+
+### P2 - Minor Issues
+- [Issue with file:line, optional fix]
+
+## Suggestions
+- [Improvement suggestion]
+
+## Quality Rubric
+Note: Provide brief explanation for any non-Pass scores.
+
+| Dimension | Score | Notes |
+|-----------|-------|-------|
+| Completeness | Pass/Minor/Major/Critical | |
+| Correctness | Pass/Minor/Major/Critical | |
+| Best Practices | Pass/Minor/Major/Critical | |
+| Performance | Pass/Minor/Major/Critical | |
+| Maintainability | Pass/Minor/Major/Critical | |
+| Security | Pass/Minor/Major/Critical | |
+| Backward Compatibility | Pass/Minor/Major/Critical | |
+
+## Summary
+[1-3 paragraphs with file:line citations, risks, and next steps]
+
+## 建议执行说明 (Implementation Guide)
+请根据本审查报告中的建议进行分析判断。对于明确不适用或不需要采纳的建议，可以直接忽略；其他建议请认真评估并按照优先级执行整改。
+
+Please analyze the suggestions in this review report. You may ignore recommendations that are clearly inapplicable or unnecessary. For other suggestions, carefully evaluate and implement them according to their priority.
+
+---
+
+**Review Metadata**
+- **发起者**: {{INITIATOR}}
+- **审阅者**: {{REVIEWER}}
+
+<!-- REVIEW_COMPLETE -->
+```
+
+**IMPORTANT**: You MUST include the `<!-- REVIEW_COMPLETE -->` marker at the end of report.md to indicate the review is fully completed. This marker is used by the framework to verify report integrity.
+"""
+
+GENERIC_REVIEWER_TEMPLATE = """
+**OUTPUT REQUIREMENTS**:
+- report.md MUST use UTF-8 encoding (without BOM)
+- report.md path is specified in the initial prompt - use that exact path
+
+**CORE CONSTRAINTS**:
+- Your working directory is the project root - all project files are accessible via relative paths
+- You are READ-ONLY reviewer: Do NOT modify project code or resources
+- You MAY read any files to understand the codebase
+- You MUST create report.md at the specified path before exiting
+
+### Workflow
+Execute all 6 steps sequentially without stopping or waiting for user input.
+
+**Step 1: Intake & Reality Check**
+- Restate review request in technical terms
+- Identify potential risks (breaking changes, performance regression, technical debt)
+- Make assumptions and continue
+
+**Step 2: Context Gathering**
+- Read ReviewIndex.md to understand the task structure
+- The task list table shows all task files (e.g., Task1_LoginUpgrade.md, Task2_RefreshEndpoint.md)
+- All task files are in the same directory as ReviewIndex.md
+- Review each task file according to the index
+- Obtain sufficient context to evaluate each task
+- Start broad then narrow, batch searches, deduplicate paths
+- Stop early when signals converge to clear problem
+- Budget: 5-8 tool calls per task
+
+**Step 3: Planning**
+- Generate multi-step review plan (≥2 steps)
+- Make reasonable assumptions
+
+**Step 4: Execution**
+- Execute review per plan
+- Tag actions with plan step numbers
+- Continue with available information on failures
+
+**Step 5: Verification**
+- Apply quality rubric (below) to assess draft
+- Record assessment for each dimension
+
+**Step 6: Handoff (CRITICAL)**
+- Create report.md with the specified format
+- When referencing code issues, use format: TaskN_FileName.md:line
+  Example: "Hardcoded API key in Task1_LoginUpgrade.md:15"
+- Include file:line citations, risks, and next steps
+- **IMPORTANT**: Do NOT repeat/copy the full task requirements in the report
+  - Only reference task names (e.g., "Task 1: Login Upgrade")
+  - Focus on findings: issues found, quality assessment, and recommendations
+  - The MCP client already has access to task files
+- Review is NOT complete until report.md exists with the completion marker
+
+### Quality Rubric
+Assess draft on 7 dimensions (Pass/Minor/Major/Critical):
+
+**1. Completeness**
+- Pass: All requirements covered
+- Minor: Missing optional features
+- Major: Missing critical modules (e.g., error handling)
+- Critical: Core problem unsolved
+
+**2. Correctness**
+- Pass: No obvious bugs
+- Minor: Incomplete edge cases
+- Major: Core logic errors
+- Critical: System crashes or data corruption
+
+**3. Best Practices**
+- Pass: Follows standards
+- Minor: Inconsistent naming/comments
+- Major: Violates architecture patterns
+- Critical: Security violations (e.g., hardcoded keys)
+
+**4. Performance**
+- Pass: No bottlenecks
+- Minor: Optimizable (e.g., O(n²)→O(n log n))
+- Major: Severe issues (e.g., blocking)
+- Critical: Unusable performance
+
+**5. Maintainability**
+- Pass: Clear structure, ≤3 indent levels
+- Minor: Long functions
+- Major: High coupling, >4 indent levels
+- Critical: Spaghetti code
+
+**6. Security**
+- Pass: No vulnerabilities
+- Minor: Missing input validation
+- Major: OWASP Top 10 risks
+- Critical: Data leak/compromise risk
+
+**7. Backward Compatibility**
+- Pass: No breaking changes
+- Minor: Deprecations with transition
+- Major: Breaks internal APIs
+- Critical: Breaks userspace/core APIs
+
+Priority mapping: Critical→P0, Major→P1, Minor→P2, Pass→no issue
+"""
+

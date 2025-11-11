@@ -1,0 +1,61 @@
+{
+  "_comment_usage": "这是配置文件示例，展示了v3.0多任务文件架构的配置格式 | This is a configuration file example showing v3.0 multi-task file architecture format",
+  "_comment_priority": "优先级：项目目录/.review_setting.json > ~/.review_setting.json > 内置默认配置 | Priority: project/.review_setting.json > ~/.review_setting.json > built-in default",
+  "current_cli_tool": "iflow",
+  "_comment_env_vars": "通用环境变量，所有CLI工具共享（除非在cli_presets中单独覆盖）| Common environment variables shared by all CLI tools (unless overridden in cli_presets)",
+  "env_vars": {
+    "PYTHONIOENCODING": "utf-8",
+    "PYTHONUTF8": "1"
+  },
+  "_comment_cli_presets": "CLI工具预设配置。必需字段：executable, args, log_file_name。可选字段：extended_prompt, env_vars, install_command | CLI tool preset configurations. Required fields: executable, args, log_file_name. Optional fields: extended_prompt, env_vars, install_command",
+  "cli_presets": {
+    "codex": {
+      "_comment": "OpenAI Codex CLI - 默认审查工具 | OpenAI Codex CLI - Default review tool",
+      "executable": "codex",
+      "args": [
+        "exec",
+        "--skip-git-repo-check",
+        "--dangerously-bypass-approvals-and-sandbox"
+      ],
+      "log_file_name": "codex.log",
+      "extended_prompt": "",
+      "install_command": "npm install -g @openai/codex"
+    },
+    "claude": {
+      "_comment": "Anthropic Claude CLI - Claude Code命令行版本 | Anthropic Claude CLI - Claude Code command-line version",
+      "executable": "claude",
+      "args": [
+        "--dangerously-skip-permissions"
+      ],
+      "log_file_name": "claude.log",
+      "extended_prompt": "Please use ultrathink mode for deep analysis",
+      "install_command": "npm install -g @anthropic-ai/claude-code"
+    },
+    "iflow": {
+      "_comment": "iFlow CLI 是一款直接在终端中运行的强大 AI 助手。它能够无缝分析代码仓库、执行编程任务、理解上下文需求，通过自动化处理从简单的文件操作到复杂的工作流程，全面提升您的工作效率。| iFlow CLI is a powerful AI assistant running directly in the terminal. It seamlessly analyzes code repositories, executes programming tasks, understands contextual requirements, and automates everything from simple file operations to complex workflows, comprehensively improving your efficiency.",
+      "executable": "iflow",
+      "args": [
+        "-y",
+        "-p"
+      ],
+      "log_file_name": "iflow.log",
+      "extended_prompt": "",
+      "install_command": "npm i -g @iflow-ai/iflow-cli"
+    }
+  },
+  "_validation_rules": {
+    "executable": "必需，非空字符串 | Required, non-empty string",
+    "args": "必需，字符串数组 | Required, string array",
+    "log_file_name": "必需，相对路径（不能是绝对路径）| Required, relative path (cannot be absolute path)",
+    "extended_prompt": "可选，扩展提示词（追加到内置提示词后），为空则不追加 | Optional, extended prompt (appended to built-in prompt), no append if empty",
+    "env_vars": "可选（使用顶层或工具级），键值对对象 | Optional (use top-level or tool-level), key-value object",
+    "install_command": "可选，CLI工具的安装命令（用于错误提示）| Optional, CLI tool installation command (for error messages)"
+  },
+  "_usage_steps": [
+    "1. 复制此文件为 .review_setting.json（去掉.example后缀）| Copy this file as .review_setting.json (remove .example suffix)",
+    "2. 修改 current_cli_tool 为你要使用的工具名称 | Modify current_cli_tool to the tool name you want to use",
+    "3. 根据需要修改或添加 cli_presets 中的工具配置 | Modify or add tool configurations in cli_presets as needed",
+    "4. 如需工具特定提示词，设置extended_prompt字段 | Set extended_prompt field if tool-specific prompts are needed",
+    "5. 保存文件到项目根目录或 ~/.review_setting.json | Save file to project root or ~/.review_setting.json"
+  ]
+}
