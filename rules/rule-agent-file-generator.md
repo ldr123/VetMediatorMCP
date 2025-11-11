@@ -19,6 +19,13 @@
 - 所有生成的文件使用UTF-8编码（不带BOM）
 - MCP服务器自动处理统一输出UTF-8无BOM格式
 
+
+**[重要!!!]临时文件命名约定**:
+- ReviewIndex.md: `ReviewIndex-{random}.md`
+- 任务文件: `{TargetName}-{random}.md`（如 `Task1_LoginUpgrade-abc123.md`）
+- MCP服务器会自动提取目标文件名（截取最后一个"-"前的部分）
+- 将临时文件写入VetMediatorSessions/tmp目录（如果目录不存在就生成），注意：一定要生成到这个目录，而不是生成到系统临时目录(比如~/)
+
 ---
 
 ## ReviewIndex.md格式
@@ -275,11 +282,6 @@ mcp__codex-review-mcp__start_review(
     project_root="/path/to/project"
 )
 ```
-
-**临时文件命名约定**:
-- ReviewIndex.md: `ReviewIndex-{random}.md`
-- 任务文件: `{TargetName}-{random}.md`（如 `Task1_LoginUpgrade-abc123.md`）
-- MCP服务器会自动提取目标文件名（截取最后一个"-"前的部分）
 
 **MCP工作流程**:
 1. 验证所有文件路径存在
