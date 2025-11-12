@@ -2,9 +2,9 @@
 
 **触发词**：`使用vet验证` 或 `让vet帮我验证` 或 `使用CLI工具交叉验证`
 
-**执行步骤（智能缓存，节省Token）**：
+**执行步骤**：
 
-### Step 1: 获取最新规则（自动缓存）
+### Step 1: 获取最新规则（强制执行）
 1. 调用 `mcp__vet-mediator-mcp__get_review_rule_hash` 获取当前规则版本hash
 2. 检查本地 `VetMediatorSessions` 目录下是否有对应hash的缓存文件（`vet_mediator_rule_{hash}.md`）
 3. **如无缓存**：调用 `mcp__vet-mediator-mcp__update_review_rules(rule_type="file-generator", dst_path="{project_root}/VetMediatorSessions")` 注意：`{project_root}` 需要替换为实际项目根目录的完整绝对路径
