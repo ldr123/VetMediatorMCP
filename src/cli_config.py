@@ -25,7 +25,8 @@ BUILTIN_PROMPT = (
     "CRITICAL REQUIREMENT: You MUST use UTF-8 encoding WITHOUT BOM (Byte Order Mark) "
     "for ALL file operations (reading ReviewIndex.md, reading task files, writing report.md, "
     "and any other file I/O). Do NOT use UTF-8 with BOM, UTF-16, or any other encoding. "
-    "This is mandatory to ensure cross-platform compatibility."
+    "This is mandatory to ensure cross-platform compatibility. "
+    "The review root directory is: {PROJECT_ROOT}"
 )
 
 

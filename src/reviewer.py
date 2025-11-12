@@ -721,7 +721,10 @@ Configuration check:
 
             # [Modification 9]: 构建命令参数列表 | Build command arguments list
             # 使用as_posix()转换为Unix风格路径（正斜杠），避免Windows反斜杠在shell中被转义 | Use as_posix() to convert to Unix-style path (forward slash), avoid Windows backslash being escaped in shell
-            cli_cmd_args = self.command_builder.build_review_command_args(session_rel_path.as_posix())
+            cli_cmd_args = self.command_builder.build_review_command_args(
+                session_rel_path.as_posix(),
+                str(project_root_path)
+            )
 
             # [Modification 10]: 检查prompt长度 | Check prompt length
             # 提取最后一个参数（prompt）| Extract last argument (prompt)
@@ -735,7 +738,10 @@ Configuration check:
                     )
 
             # [Modification 11]: 日志输出（用字符串形式）| Log output (as string format)
-            cli_cmd_str = self.command_builder.build_review_command_string(session_rel_path.as_posix())
+            cli_cmd_str = self.command_builder.build_review_command_string(
+                session_rel_path.as_posix(),
+                str(project_root_path)
+            )
             logger.info(f"[MCP] Executing {self.display_name} command: {cli_cmd_str}")
 
             # [Modification 12]: 在Windows上通过cmd.exe运行CLI工具 | Run CLI tool via cmd.exe on Windows

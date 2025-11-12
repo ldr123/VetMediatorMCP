@@ -8,7 +8,7 @@
 
 ### Step 1: 获取最新规则（自动缓存）
 1. 调用 `mcp__vet-mediator-mcp__get_review_rule_hash` 获取当前规则版本hash
-2. 检查本地 `~/.vetmediator/` 目录是否有对应hash的缓存文件
+2. 检查本地 `VetMediatorSessions` 目录是否有对应hash的缓存文件
 3. **如无缓存**：调用 `mcp__vet-mediator-mcp__get_review_rules(rule_type="file-generator")` 下载并保存
 4. **如有缓存**：直接读取本地文件（节省~4000 tokens）
 
