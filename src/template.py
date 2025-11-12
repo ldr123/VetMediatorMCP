@@ -11,6 +11,9 @@ Version: 3.0.0
 VERSION = "3.0.0"
 
 REPORT_FORMAT_TEMPLATE = """### Report Format
+
+**Report Language**: Use the same language as the predominant language in OriginalRequirement.md (if provided) or the task descriptions. For example: if the user primarily communicated in Chinese, write the report in Chinese; if in Japanese, write in Japanese; if in English, write in English.
+
 Save review results to `report.md` using this exact format:
 
 ```markdown
@@ -49,16 +52,14 @@ Note: Provide brief explanation for any non-Pass scores.
 ## Summary
 [1-3 paragraphs with file:line citations, risks, and next steps]
 
-## 建议执行说明 (Implementation Guide)
-请根据本审查报告中的建议进行分析判断。对于明确不适用或不需要采纳的建议，可以直接忽略；其他建议请认真评估并按照优先级执行整改。
-
-Please analyze the suggestions in this review report. You may ignore recommendations that are clearly inapplicable or unnecessary. For other suggestions, carefully evaluate and implement them according to their priority.
+## Implementation Guide
+Analyze each suggestion in this review report. You may disregard recommendations that are clearly inapplicable or unnecessary. For all other suggestions, carefully evaluate and implement them according to their priority level.
 
 ---
 
 **Review Metadata**
-- **发起者**: {{INITIATOR}}
-- **审阅者**: {{REVIEWER}}
+- **Initiator**: {{INITIATOR}}
+- **Reviewer**: {{REVIEWER}}
 
 <!-- REVIEW_COMPLETE -->
 ```
@@ -80,6 +81,7 @@ You will receive the following files (some optional):
 - Your working directory is the project root (this is where the CLI tool is executed)
 - The session directory path is: {SESSION_REL_PATH}/ (relative to project root)
 - All review files are located in the session directory (relative to project root)
+- All files use UTF-8 encoding without BOM
 - Use file reading tools (e.g., read_file) with relative paths from project root
 - Example: Read "{SESSION_REL_PATH}/ReviewIndex.md" (not "./ReviewIndex.md" or absolute paths)
 - Example: Read "{SESSION_REL_PATH}/Task1_XXX.md" for task files
@@ -106,18 +108,14 @@ You will receive the following files (some optional):
 Execute all steps sequentially without stopping or waiting for user input.
 
 **Step 0: Check for Planning Documents (NEW)**
-- The session directory path is: {SESSION_REL_PATH}/ (relative to project root)
-- Use file reading tools to check if "{SESSION_REL_PATH}/OriginalRequirement.md" exists
-- Use file reading tools to check if "{SESSION_REL_PATH}/TaskPlanning.md" exists
-- DO NOT use "./" or relative paths without the session directory prefix
-- If BOTH exist (you can read them), proceed with planning validation in Step 1
-- If NEITHER exist (file reading fails), skip planning validation and go directly to Step 2
+- Check if "{SESSION_REL_PATH}/OriginalRequirement.md" exists using file reading tools
+- Check if "{SESSION_REL_PATH}/TaskPlanning.md" exists using file reading tools
+- All files are UTF-8 encoded without BOM
+- If BOTH exist, proceed with planning validation in Step 1
+- If NEITHER exist, skip planning validation and go directly to Step 2
 
 **Step 1: Planning Validation (if OriginalRequirement.md and TaskPlanning.md exist)**
-- Read "{SESSION_REL_PATH}/OriginalRequirement.md" using file reading tools (relative path from project root)
-- Read "{SESSION_REL_PATH}/TaskPlanning.md" using file reading tools (relative path from project root)
-- DO NOT use shell commands to read files
-- DO NOT use "./" or relative paths without the session directory prefix
+- Read "{SESSION_REL_PATH}/OriginalRequirement.md" and "{SESSION_REL_PATH}/TaskPlanning.md"
 - **Validate Task Decomposition**:
   - Does TaskPlanning fully address all requirements in OriginalRequirement?
   - Are there any misunderstood or overlooked requirements?
@@ -133,14 +131,9 @@ Execute all steps sequentially without stopping or waiting for user input.
 - Make assumptions and continue
 
 **Step 2: Context Gathering**
-- Read "{SESSION_REL_PATH}/ReviewIndex.md" using file reading tools (relative path from project root)
-- The task list table shows all task files (e.g., Task1_LoginUpgrade.md, Task2_RefreshEndpoint.md)
-- All task files are in the same session directory: {SESSION_REL_PATH}/
-- Read each task file using relative paths from project root
-- Example: Read "{SESSION_REL_PATH}/Task1_XXX.md", "{SESSION_REL_PATH}/Task2_XXX.md", etc.
-- DO NOT use "./" or relative paths without the session directory prefix
-- Use file reading tools with relative paths from project root (always include the session directory path: {SESSION_REL_PATH}/)
-- Review each task file according to the index
+- Read "{SESSION_REL_PATH}/ReviewIndex.md" to see all task files
+- Read each task file: "{SESSION_REL_PATH}/Task1_XXX.md", "{SESSION_REL_PATH}/Task2_XXX.md", etc.
+- All files are UTF-8 encoded without BOM
 - Obtain sufficient context to evaluate each task
 - Start broad then narrow, batch searches, deduplicate paths
 - Stop early when signals converge to clear problem
@@ -160,16 +153,16 @@ Execute all steps sequentially without stopping or waiting for user input.
 - Record assessment for each dimension
 
 **Step 6: Handoff (CRITICAL)**
-- Create report.md at "{SESSION_REL_PATH}/report.md" using relative path from project root
-- Use the specified format (see Report Format section below)
+- Create report.md at "{SESSION_REL_PATH}/report.md" using the specified format below
+- Output file MUST use UTF-8 encoding without BOM
+- Write report in the same language as user's original input (Chinese→Chinese, Japanese→Japanese, English→English)
 - When referencing code issues, use format: TaskN_FileName.md:line
   Example: "Hardcoded API key in Task1_LoginUpgrade.md:15"
 - Include file:line citations, risks, and next steps
 - **IMPORTANT**: Do NOT repeat/copy the full task requirements in the report
   - Only reference task names (e.g., "Task 1: Login Upgrade")
   - Focus on findings: issues found, quality assessment, and recommendations
-  - The MCP client already has access to task files
-- Review is NOT complete until report.md exists at "{SESSION_REL_PATH}/report.md" with the completion marker
+- Review is NOT complete until report.md exists with the `<!-- REVIEW_COMPLETE -->` marker
 
 ### Quality Rubric
 Assess draft on 7 dimensions (Pass/Minor/Major/Critical):
