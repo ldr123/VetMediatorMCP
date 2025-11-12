@@ -48,3 +48,4 @@ mcp_error.log
 test_*.py
 test_*.md
 test_output/
+.claude

@@ -140,7 +140,6 @@ class CliCheckWindow(QMainWindow):
         else:
             self.setWindowTitle(f"{self.current_cli_tool.capitalize()} CLI Tool Not Found")
         self.resize(DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT)
-        self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
 
         self._create_ui()
 

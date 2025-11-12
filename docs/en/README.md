@@ -540,6 +540,6 @@ If you have questions:
 
 ---
 
-**Version**: 0.0.1
-**Last Updated**: 2025-11-11
+**Version**: 2.0.1
+**Last Updated**: 2025-11-12
 **Compatibility**: Python 3.10+, MCP 1.0.0+

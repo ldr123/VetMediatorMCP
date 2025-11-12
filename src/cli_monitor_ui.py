@@ -109,9 +109,6 @@ class CliMonitorWindow(QMainWindow):
         self.setWindowTitle(f"{self.tool_name} is processing...")
         self.resize(DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT)  # 使用常量
 
-        # 设置窗口置顶（始终显示在最前面）
-        self.setWindowFlags(self.windowFlags() | Qt.WindowStaysOnTopHint)
-
         # 创建UI组件
         self._create_ui()
 

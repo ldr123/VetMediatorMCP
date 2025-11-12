@@ -1,5 +1,3 @@
-# Claude Code 开发指南
-
 ## 🤝 CLI工具交叉验证
 
 **触发词**：`使用vet验证` 或 `让vet帮我验证` 或 `使用CLI工具交叉验证`
@@ -35,4 +33,3 @@
 **执行步骤**：
 调用MCP工具：`mcp__vet-mediator-mcp__show_cli_config`
 - 必需参数：`project_root`（项目根目录路径）
-

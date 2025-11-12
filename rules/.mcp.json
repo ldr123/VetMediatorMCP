@@ -1,31 +1,33 @@
 {
-    "mcpServers": {
-        "context7": {
-            "type": "stdio",
-            "command": "cmd",
-            "args": [
-                "/c",
-                "npx",
-                "@upstash/context7-mcp@latest"
-            ],
-            "env": {}
-        },
-        "sequential-thinking": {
-            "command": "cmd",
-            "args": [
-                "/c",
-                "npx",
-                "-y",
-                "@modelcontextprotocol/server-sequential-thinking"
-            ]
-        },
-		"vet-mediator-mcp": {
-           "command": "uvx",
-           "args": [
-              "--from",
-              "git+https://gitee.com/ldr123/VetMediatorMCP.git",
-              "vet-mediator-mcp"
-      ]
-        }
-    }
+    "mcpServers":  {
+                       "context7":  {
+                                        "type":  "stdio",
+                                        "command":  "cmd",
+                                        "args":  [
+                                                     "/c",
+                                                     "npx",
+                                                     "@upstash/context7-mcp@latest"
+                                                 ],
+                                        "env":  {
+
+                                                }
+                                    },
+                       "sequential-thinking":  {
+                                                   "command":  "cmd",
+                                                   "args":  [
+                                                                "/c",
+                                                                "npx",
+                                                                "-y",
+                                                                "@modelcontextprotocol/server-sequential-thinking"
+                                                            ]
+                                               },
+                       "vet-mediator-mcp":  {
+                                                "command":  "uvx",
+                                                "args":  [
+                                                             "--from",
+                                                             "git+https://gitee.com/ldr123/VetMediatorMCP.git",
+                                                             "vet-mediator-mcp"
+                                                         ]
+                                            }
+                   }
 }

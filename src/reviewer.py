@@ -418,6 +418,9 @@ Configuration check:
         except ProcessLookupError:
             # 进程已不存在（可能已自然退出）| Process no longer exists (may have exited naturally)
             logger.info(f"[MCP] Process {process.pid} already exited")
+        except ProcessLookupError:
+            # 进程已不存在（可能已自然退出）| Process no longer exists (may have exited naturally)
+            logger.info(f"[MCP] Process {process.pid} already exited")
 
     async def _capture_and_write_log(self, stdout: asyncio.StreamReader, log_path: Path):
         """Capture CLI tool stdout in real-time, detect encoding, write to UTF-8 log.
@@ -847,7 +850,7 @@ Configuration check:
                 logger.info("[MCP] GUI not available, running in headless mode")
 
             # 主监控循环：等待进程退出或超时/UI中止 | Main monitor loop: wait for process exit or timeout/UI abort
-            start_time = time.time()
+            start_time = time.monotonic()
             report_detected_time = None  # 首次检测到report.md的时间戳 | Timestamp when report.md first detected
 
             # 智能超时：监控log文件活跃度 | Smart timeout: monitor log file activity
@@ -891,7 +894,7 @@ Configuration check:
                     # ========================================
                     # 检查2：智能超时（基于log文件活跃度）| Check 2: Smart timeout (based on log file activity)
                     # ========================================
-                    elapsed = time.time() - start_time
+                    elapsed = time.monotonic() - start_time
 
                     # 检查log文件活跃度 | Check log file activity
                     try:
@@ -900,13 +903,13 @@ Configuration check:
                             if current_log_mtime > last_log_mtime:
                                 # log文件有更新，重置活跃时间 | Log file updated, reset activity time
                                 last_log_mtime = current_log_mtime
-                                last_activity_time = time.time()
+                                last_activity_time = time.monotonic()
                                 logger.debug(f"[MCP] Log file updated, reset activity timer")
                     except Exception as e:
                         logger.debug(f"[MCP] Failed to check log file: {e}")
 
                     # 计算无响应时长 | Calculate idle duration
-                    idle_time = time.time() - last_activity_time
+                    idle_time = time.monotonic() - last_activity_time
 
                     # 检查无响应超时（5分钟无新输出）| Check idle timeout (5 minutes with no new output)
                     if idle_time > IDLE_TIMEOUT:
@@ -941,11 +944,11 @@ Configuration check:
                     if report_path.exists() and report_path.stat().st_size > 100:
                         if report_detected_time is None:
                             # 首次检测到report.md | First detected report.md
-                            report_detected_time = time.time()
+                            report_detected_time = time.monotonic()
                             logger.info(f"[MCP] report.md detected ({report_path.stat().st_size} bytes), starting 10-second countdown")
                         else:
                             # 检查是否已等待超过10秒 | Check if waited for more than 10s
-                            report_wait_time = time.time() - report_detected_time
+                            report_wait_time = time.monotonic() - report_detected_time
                             if report_wait_time > 10:
                                 # 超过10秒，先关闭UI（让用户有足够时间查看日志）| Over 10s, close UI first (give user enough time to view log)
                                 logger.info("[MCP] 10 seconds elapsed since report.md detected, closing UI")

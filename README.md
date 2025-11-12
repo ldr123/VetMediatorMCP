@@ -68,11 +68,11 @@ Complete English guide
 
 **Using uvx (Recommended) / 使用uvx（推荐）**:
 
-📋 **Step 1: Copy MCP configuration to your project root / 复制MCP配置到项目根目录**
+📋 **Step 1: Configure MCP server in your project / 在项目中配置MCP服务器**
 
-Copy `rules/.mcp.json` from this repository to your project root directory as `.mcp.json`
+Create `.mcp.json` in your project root directory with the following content:
 
-从本仓库复制 `rules/.mcp.json` 到你的项目根目录并命名为 `.mcp.json`
+在项目根目录创建 `.mcp.json` 文件，内容如下：
 
 ```json
 {
@@ -94,100 +94,31 @@ Copy `rules/.mcp.json` from this repository to your project root directory as `.
 "git+https://gitee.com/ldr123/VetMediatorMCP.git"
 ```
 
-📋 **Step 2: Add VetMediator configuration to your AI tool's rule file / 添加VetMediator配置到AI工具的规则文件**
+📋 **Step 2: Add VetMediator rules to your AI tool's rule file / 添加VetMediator规则到AI工具的规则文件**
 
-View the content of `rules/CLAUDE.md` in this repository, and add it to your AI tool's rule file **at the beginning**.
+Copy the content of `rules/CLAUDE.md` from this repository to the **beginning** of your project's AI tool rule file.
 
-查看本仓库的 `rules/CLAUDE.md` 文件内容，并将其添加到你的AI工具规则文件的**开头部分**。
+从本仓库复制 `rules/CLAUDE.md` 的内容到你的项目的AI工具规则文件的**开头部分**。
 
-**Configuration for different AI tools / 不同AI工具的配置方式**:
+**Different AI tools use different rule files / 不同AI工具使用不同的规则文件**:
 
-| AI Tool / 工具 | Rule File / 规则文件 | Location / 位置 | Notes / 说明 |
-|----------------|---------------------|----------------|--------------|
-| **Claude Code** | `CLAUDE.md` | Project root / 项目根目录 | System default / 系统预设 |
-| **Cursor** | `*.mdc` | `.cursor/rules/` | Multi-level priority, auto-load / 多级优先级，自动加载 |
-| **Codex** | `AGENTS.md` | Project root / 项目根目录 | Supports global & project level / 支持全局与项目级 |
-| **iFlow** | `IFLOW.md` | Project root / 项目根目录 | Supports including other files / 支持包含其他文件 |
-| **Gemini CLI** | `GEMINI.md` | Project root / 项目根目录 | Supports module-level rules / 支持模块级规则 |
+| AI Tool / 工具 | Rule File / 规则文件 | Location / 位置 |
+|----------------|---------------------|----------------|
+| **Claude Code** | `CLAUDE.md` | Project root / 项目根目录 |
+| **Cursor** | `*.mdc` | `.cursor/rules/` |
+| **Codex** | `AGENTS.md` | Project root / 项目根目录 |
+| **iFlow** | `IFLOW.md` | Project root / 项目根目录 |
+| **Gemini CLI** | `GEMINI.md` | Project root / 项目根目录 |
 
-**Example for Claude Code / Claude Code示例**:
-- Copy the content of `rules/CLAUDE.md` to the **beginning** of your project's `CLAUDE.md`
-- 将 `rules/CLAUDE.md` 的内容复制到项目根目录的 `CLAUDE.md` **开头部分**
+**Examples / 示例**:
+- **Claude Code**: Copy `rules/CLAUDE.md` content → Your project's `CLAUDE.md` (beginning)
+- **Codex**: Copy `rules/CLAUDE.md` content → Your project's `AGENTS.md` (beginning)
+- **iFlow**: Copy `rules/CLAUDE.md` content → Your project's `IFLOW.md` (beginning)
 
-**Example for Cursor / Cursor示例**:
-- Create `.cursor/rules/vetmediator.mdc` in your project
-- Copy the content of `rules/CLAUDE.md` into it
-- 在项目中创建 `.cursor/rules/vetmediator.mdc`
-- 将 `rules/CLAUDE.md` 的内容复制进去
-
-**Example for Codex / Codex示例**:
-- Copy the content of `rules/CLAUDE.md` to the **beginning** of your project's `AGENTS.md`
-- 将 `rules/CLAUDE.md` 的内容复制到项目根目录的 `AGENTS.md` **开头部分**
-
-**Example for iFlow / iFlow示例**:
-- Copy the content of `rules/CLAUDE.md` to the **beginning** of your project's `IFLOW.md`
-- 将 `rules/CLAUDE.md` 的内容复制到项目根目录的 `IFLOW.md` **开头部分**
-
-**Example for Gemini CLI / Gemini CLI示例**:
-- Copy the content of `rules/CLAUDE.md` to the **beginning** of your project's `GEMINI.md`
-- 将 `rules/CLAUDE.md` 的内容复制到项目根目录的 `GEMINI.md` **开头部分**
-
-This content includes trigger words and execution steps for the AI tool to use VetMediator.
-
-此内容包含AI工具使用VetMediator的触发词和执行步骤。
-
-📋 **Step 3: Copy task generation rules to your project / 复制任务生成规则到项目**
-
-Copy `rules/rule-agent-file-generator.md` from this repository to your project's `rules/` directory
-
-从本仓库复制 `rules/rule-agent-file-generator.md` 到你的项目的 `rules/` 目录
-
-📋 **Step 4: Update the path reference in your AI tool's rule file / 更新AI工具规则文件中的路径引用**
-
-⚠️ **Important / 重要**: After copying the content from `rules/CLAUDE.md`, you need to **update the file path** in your AI tool's rule file.
-
-复制 `rules/CLAUDE.md` 的内容后，你需要**更新**AI工具规则文件中的文件路径。
-
-**Original line in `rules/CLAUDE.md` / `rules/CLAUDE.md` 中的原始内容**:
-```markdown
-1. 读取规则文件：`rule-agent-file-generator.md`（与本文件位于同一目录）
-```
-
-**What you need to change / 你需要修改为**:
-
-If you placed `rule-agent-file-generator.md` in `rules/` directory:
-
-如果你将 `rule-agent-file-generator.md` 放在 `rules/` 目录:
-
-```markdown
-1. 读取规则文件：`rules/rule-agent-file-generator.md`
-```
-
-Or, if you placed it in another directory, update the path accordingly:
-
-或者，如果你放在其他目录，相应更新路径：
-
-```markdown
-1. 读取规则文件：`path/to/your/rule-agent-file-generator.md`
-```
-
-**Example for different locations / 不同位置的示例**:
-- If in `rules/` folder: `rules/rule-agent-file-generator.md`
-- If in `docs/` folder: `docs/rule-agent-file-generator.md`
-- If in project root: `rule-agent-file-generator.md`
-- If in `.cursor/rules/` folder (for Cursor): `rule-agent-file-generator.md` (same directory)
-
-⚠️ **Important / 重要**: The AI tool's rule file references `rule-agent-file-generator.md`. You can place `rule-agent-file-generator.md` in any directory, but make sure to update the path reference accordingly.
-
-**File locations summary / 文件位置总结**:
-```
-YourProject/
-├── .mcp.json                           # MCP server configuration / MCP服务器配置
-├── CLAUDE.md (or AGENTS.md, etc.)     # AI tool rule file (add VetMediator config to beginning)
-│                                       # AI工具规则文件（将VetMediator配置添加到开头）
-└── rules/
-    └── rule-agent-file-generator.md    # Task generation rules / 任务生成规则
-```
+复制示例：
+- **Claude Code**：复制 `rules/CLAUDE.md` 内容 → 你的项目的 `CLAUDE.md`（开头部分）
+- **Codex**：复制 `rules/CLAUDE.md` 内容 → 你的项目的 `AGENTS.md`（开头部分）
+- **iFlow**：复制 `rules/CLAUDE.md` 内容 → 你的项目的 `IFLOW.md`（开头部分）
 
 📚 **For detailed instructions, see documentation above**
 **详细说明请查看上方文档**
@@ -234,7 +165,7 @@ Want to see VetMediator in action? Check out our complete example!
 
 ## 📊 Project Status / 项目状态
 
-**Version / 版本**: 0.0.1
+**Version / 版本**: 2.0.1
 **Status / 状态**: Active Development / 积极开发中
 **Python / Python版本**: 3.10+
 **MCP Compatibility / MCP兼容性**: 1.0.0+
