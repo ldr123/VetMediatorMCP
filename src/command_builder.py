@@ -24,15 +24,13 @@ class CommandBuilder:
         """
         self.config = config
 
-    def build_review_command_args(self, session_rel_path: str, project_root: str) -> List[str]:
+    def build_review_command_args(self, session_rel_path: str) -> List[str]:
         """构建审查命令参数列表（用于subprocess执行）
         Build CLI command arguments list for subprocess execution.
 
         Args:
             session_rel_path: session目录相对于项目根的路径
                             Session directory path relative to project root
-            project_root: 项目根目录路径
-                         Project root directory path
 
         Returns:
             完整的命令参数列表: [executable, *args, prompt]
@@ -41,7 +39,7 @@ class CommandBuilder:
         executable = self.config.get("executable", "")
         args = self.config.get("args", [])[:]
 
-        prompt = BUILTIN_PROMPT.format(session_rel_path=session_rel_path, PROJECT_ROOT=project_root)
+        prompt = BUILTIN_PROMPT.format(session_rel_path=session_rel_path)
 
         extended_prompt = self.config.get("extended_prompt", "").strip()
         if extended_prompt:
@@ -50,20 +48,18 @@ class CommandBuilder:
 
         return [executable] + args + [prompt]
 
-    def build_review_command_string(self, session_rel_path: str, project_root: str) -> str:
+    def build_review_command_string(self, session_rel_path: str) -> str:
         """构建命令字符串（仅用于日志显示）
         Build command string (for logging only)
 
         Args:
             session_rel_path: session目录相对于项目根的路径
                             Session directory path relative to project root
-            project_root: 项目根目录路径
-                         Project root directory path
 
         Returns:
             命令字符串 | Command string
         """
-        args = self.build_review_command_args(session_rel_path, project_root)
+        args = self.build_review_command_args(session_rel_path)
         return ' '.join(args)
 
     def get_version_check_args(self) -> List[str]:

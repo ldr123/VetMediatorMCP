@@ -18,15 +18,20 @@ logger = logging.getLogger(__name__)
 
 # 内置提示词模板（所有CLI工具共享）| Built-in prompt template (shared by all CLI tools)
 BUILTIN_PROMPT = (
-    "Please read {session_rel_path}/ReviewIndex.md for the review index. "
+    "Your working directory is the project root. "
+    "The session directory is located at: {session_rel_path}/ (relative to project root). "
+    "All review files are in this directory. "
+    "Please read {session_rel_path}/ReviewIndex.md for the review index using file reading tools with relative path. "
     "It contains a task list table showing all task files in the same directory. "
     "Review each task file according to the index and generate a comprehensive report. "
-    "Write report.md to {session_rel_path}/    "
+    "Write report.md to {session_rel_path}/report.md using relative path from project root. "
+    "IMPORTANT: Use file reading tools (not shell commands) with relative paths from project root. "
+    "Example: Read '{session_rel_path}/ReviewIndex.md' (not './ReviewIndex.md' or absolute paths). "
+    "DO NOT use shell commands (ls, dir, cat, type, Get-Content) to access files. "
     "CRITICAL REQUIREMENT: You MUST use UTF-8 encoding WITHOUT BOM (Byte Order Mark) "
     "for ALL file operations (reading ReviewIndex.md, reading task files, writing report.md, "
     "and any other file I/O). Do NOT use UTF-8 with BOM, UTF-16, or any other encoding. "
-    "This is mandatory to ensure cross-platform compatibility. "
-    "The review root directory is: {PROJECT_ROOT}"
+    "This is mandatory to ensure cross-platform compatibility."
 )
 
 

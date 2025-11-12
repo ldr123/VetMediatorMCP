@@ -34,6 +34,7 @@ class FileGenerator:
     def _expand_placeholders(
         self,
         text: str,
+        session_rel_path: str,
         initiator: Optional[str] = None,
         reviewer: Optional[str] = None
     ) -> str:
@@ -44,6 +45,7 @@ class FileGenerator:
         - {{INJECT:REPORT_FORMAT}} → 完整的report.md格式规范（包含元数据占位符）
         - {{INITIATOR}} → 发起者名称（在REPORT_FORMAT中）
         - {{REVIEWER}} → 审阅者名称（在REPORT_FORMAT中）
+        - {SESSION_REL_PATH} → session目录相对路径（在GENERIC_REVIEWER_TEMPLATE中）
 
         使用增强的GENERIC_REVIEWER_TEMPLATE（agent-agnostic设计）。
         当OriginalRequirement.md和TaskPlanning.md存在时，审查员会先验证规划再审查代码。
@@ -53,13 +55,17 @@ class FileGenerator:
 
         Args:
             text: 包含占位符的原始文本
+            session_rel_path: session目录相对于项目根的路径（使用正斜杠）
             initiator: 发起审查的客户端名称（如ClaudeCode）
             reviewer: 审阅工具名称（如iFlow）
 
         Returns:
             替换占位符后的文本
         """
-        text = text.replace('{{INJECT:REVIEWER_INSTRUCTIONS}}', GENERIC_REVIEWER_TEMPLATE)
+        # 替换GENERIC_REVIEWER_TEMPLATE中的路径占位符
+        reviewer_template = GENERIC_REVIEWER_TEMPLATE.replace('{SESSION_REL_PATH}', session_rel_path)
+        
+        text = text.replace('{{INJECT:REVIEWER_INSTRUCTIONS}}', reviewer_template)
 
         # 替换REPORT_FORMAT，其中包含{{INITIATOR}}和{{REVIEWER}}占位符
         report_format = REPORT_FORMAT_TEMPLATE
@@ -106,8 +112,13 @@ class FileGenerator:
         """
         # 1. 读取ReviewIndex.md
         review_text = EncodingDetector.read_file(Path(review_index_path), support_bom=True)
+        
+        # 计算session相对路径（使用正斜杠，跨平台兼容）
+        session_rel_path = self.session_dir.relative_to(self.project_root).as_posix()
+        
         review_text = self._expand_placeholders(
             review_text,
+            session_rel_path=session_rel_path,
             initiator=initiator,
             reviewer=reviewer
         )

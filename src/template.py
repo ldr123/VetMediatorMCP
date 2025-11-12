@@ -76,28 +76,50 @@ You will receive the following files (some optional):
 
 **IMPORTANT**: When OriginalRequirement.md and TaskPlanning.md are provided, you MUST first validate the task decomposition before reviewing code implementation.
 
+**FILE ACCESS INSTRUCTIONS (CRITICAL)**:
+- Your working directory is the project root (this is where the CLI tool is executed)
+- The session directory path is: {SESSION_REL_PATH}/ (relative to project root)
+- All review files are located in the session directory (relative to project root)
+- Use file reading tools (e.g., read_file) with relative paths from project root
+- Example: Read "{SESSION_REL_PATH}/ReviewIndex.md" (not "./ReviewIndex.md" or absolute paths)
+- Example: Read "{SESSION_REL_PATH}/Task1_XXX.md" for task files
+- Example: Read "{SESSION_REL_PATH}/OriginalRequirement.md" if it exists
+- DO NOT use shell commands (ls, dir, cat, type, Get-Content, etc.) to access files
+- DO NOT change working directory
+- DO NOT use absolute paths or shell path manipulation
+- DO NOT use "./" or relative paths without the session directory prefix
+- All paths should be relative to the project root and use forward slashes (/)
+- Always use the exact session directory path: {SESSION_REL_PATH}/
+
 **OUTPUT REQUIREMENTS**:
 - report.md MUST use UTF-8 encoding (without BOM)
-- report.md path is specified in the initial prompt - use that exact path
+- report.md path is: {SESSION_REL_PATH}/report.md (relative to project root)
+- Use file writing tools with relative path from project root
+- DO NOT use shell commands to write files
 
 **CORE CONSTRAINTS**:
 - Your working directory is the project root - all project files are accessible via relative paths
 - You are READ-ONLY reviewer: Do NOT modify project code or resources
 - You MAY read any files to understand the codebase
-- You MUST create report.md at the specified path before exiting
+- You MUST create report.md at "{SESSION_REL_PATH}/report.md" before exiting (use relative path from project root)
 
 ### Workflow
 Execute all steps sequentially without stopping or waiting for user input.
 
 **Step 0: Check for Planning Documents (NEW)**
-- Check if OriginalRequirement.md exists in the session directory
-- Check if TaskPlanning.md exists in the session directory
-- If BOTH exist, proceed with planning validation in Step 1
-- If NEITHER exist, skip planning validation and go directly to Step 2
+- The session directory path is: {SESSION_REL_PATH}/ (relative to project root)
+- Use file reading tools to check if "{SESSION_REL_PATH}/OriginalRequirement.md" exists
+- Use file reading tools to check if "{SESSION_REL_PATH}/TaskPlanning.md" exists
+- DO NOT use shell commands (ls, dir, cat, type) to check files
+- DO NOT use "./" or relative paths without the session directory prefix
+- If BOTH exist (you can read them), proceed with planning validation in Step 1
+- If NEITHER exist (file reading fails), skip planning validation and go directly to Step 2
 
 **Step 1: Planning Validation (if OriginalRequirement.md and TaskPlanning.md exist)**
-- Read OriginalRequirement.md to understand user's true intent and exact words
-- Read TaskPlanning.md to understand AI agent's decomposition approach
+- Read "{SESSION_REL_PATH}/OriginalRequirement.md" using file reading tools (relative path from project root)
+- Read "{SESSION_REL_PATH}/TaskPlanning.md" using file reading tools (relative path from project root)
+- DO NOT use shell commands to read files
+- DO NOT use "./" or relative paths without the session directory prefix
 - **Validate Task Decomposition**:
   - Does TaskPlanning fully address all requirements in OriginalRequirement?
   - Are there any misunderstood or overlooked requirements?
@@ -113,9 +135,14 @@ Execute all steps sequentially without stopping or waiting for user input.
 - Make assumptions and continue
 
 **Step 2: Context Gathering**
-- Read ReviewIndex.md to understand the task structure
+- Read "{SESSION_REL_PATH}/ReviewIndex.md" using file reading tools (relative path from project root)
 - The task list table shows all task files (e.g., Task1_LoginUpgrade.md, Task2_RefreshEndpoint.md)
-- All task files are in the same directory as ReviewIndex.md
+- All task files are in the same session directory: {SESSION_REL_PATH}/
+- Read each task file using relative paths from project root
+- Example: Read "{SESSION_REL_PATH}/Task1_XXX.md", "{SESSION_REL_PATH}/Task2_XXX.md", etc.
+- DO NOT use shell commands (ls, dir, cat, type) to list or read files
+- DO NOT use "./" or relative paths without the session directory prefix
+- Use file reading tools with relative paths from project root (always include the session directory path: {SESSION_REL_PATH}/)
 - Review each task file according to the index
 - Obtain sufficient context to evaluate each task
 - Start broad then narrow, batch searches, deduplicate paths
@@ -136,7 +163,8 @@ Execute all steps sequentially without stopping or waiting for user input.
 - Record assessment for each dimension
 
 **Step 6: Handoff (CRITICAL)**
-- Create report.md with the specified format
+- Create report.md at "{SESSION_REL_PATH}/report.md" using relative path from project root
+- Use the specified format (see Report Format section below)
 - When referencing code issues, use format: TaskN_FileName.md:line
   Example: "Hardcoded API key in Task1_LoginUpgrade.md:15"
 - Include file:line citations, risks, and next steps
@@ -144,7 +172,7 @@ Execute all steps sequentially without stopping or waiting for user input.
   - Only reference task names (e.g., "Task 1: Login Upgrade")
   - Focus on findings: issues found, quality assessment, and recommendations
   - The MCP client already has access to task files
-- Review is NOT complete until report.md exists with the completion marker
+- Review is NOT complete until report.md exists at "{SESSION_REL_PATH}/report.md" with the completion marker
 
 ### Quality Rubric
 Assess draft on 7 dimensions (Pass/Minor/Major/Critical):

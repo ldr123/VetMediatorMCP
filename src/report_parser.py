@@ -11,7 +11,22 @@ except ImportError:
 
 
 class ReportParser:
-    """解析Codex审查的report.md文件。"""
+    """解析CLI审查的report.md文件。"""
+    
+    # 编译后的正则表达式（类级别缓存，提升性能）
+    _STATUS_PATTERN = re.compile(r'##\s+Status\s*\n\s*(\w+)', re.IGNORECASE)
+    _OVERALL_ASSESSMENT_PATTERN = re.compile(r'##\s+Overall\s+Assessment\s*\n\s*([A-Z_]+)', re.IGNORECASE)
+    _SUMMARY_OR_CONCLUSION_PATTERN = re.compile(r'##\s+(Summary|Conclusion)', re.IGNORECASE)
+    _QUALITY_ASSESSMENT_PATTERN = re.compile(r'###\s+Quality\s+Assessment', re.IGNORECASE)
+    _CRITICAL_PATTERN = re.compile(r'\|\s*Critical\s*\||Issues\s+Found.*?\[P0\]', re.IGNORECASE | re.DOTALL)
+    _MAJOR_PATTERN = re.compile(r'\|\s*Major\s*\||Issues\s+Found.*?\[P1\]', re.IGNORECASE | re.DOTALL)
+    _OVERALL_ASSESSMENT_SECTION_PATTERN = re.compile(r'##\s+Overall\s+Assessment', re.IGNORECASE)
+    _CONCLUSION_SECTION_PATTERN = re.compile(r'##\s+Conclusion', re.IGNORECASE)
+    _ERROR_MARKERS_PATTERN = re.compile(r'\[ERROR\]|\bFAILED\b|\bCRITICAL\b', re.IGNORECASE)
+    _ISSUE_SECTION_PATTERN = re.compile(r'##\s*Issue\s*List\s*\n(.*?)(?=\n##|\Z)', re.DOTALL | re.IGNORECASE)
+    _ISSUE_ITEM_PATTERN = re.compile(r'-\s*\[([P0-2])\]\s*(.+)')
+    _SUGGESTION_SECTION_PATTERN = re.compile(r'##\s*Improvement\s*Suggestions\s*\n(.*?)(?=\n##|\Z)', re.DOTALL | re.IGNORECASE)
+    _SUGGESTION_ITEM_PATTERN = re.compile(r'-\s*(.+)')
 
     @staticmethod
     def parse_report(report_content: str) -> ParsedReport:
@@ -37,7 +52,7 @@ class ReportParser:
 
         if not has_completion_marker:
             # 向后兼容：检查是否是旧版本完整报告
-            has_conclusion = bool(re.search(r'##\s+(Summary|Conclusion)', report_content, re.IGNORECASE))
+            has_conclusion = bool(ReportParser._SUMMARY_OR_CONCLUSION_PATTERN.search(report_content))
             report_length = len(report_content.strip())
 
             if not (has_conclusion and report_length > 1000):
@@ -72,14 +87,14 @@ class ReportParser:
         content = content.lstrip('\ufeff')
 
         # 0. 优先检查最直接的格式：## Status\n{status_value}
-        status_match = re.search(r'##\s+Status\s*\n\s*(\w+)', content, re.IGNORECASE)
+        status_match = ReportParser._STATUS_PATTERN.search(content)
         if status_match:
             status = status_match.group(1).strip().lower()
             if status in ["approved", "major_issues", "minor_issues"]:
                 return status
 
         # 1. 尝试旧格式：Match "## Overall Assessment" followed by status on next line
-        match = re.search(r'##\s+Overall\s+Assessment\s*\n\s*([A-Z_]+)', content, re.IGNORECASE)
+        match = ReportParser._OVERALL_ASSESSMENT_PATTERN.search(content)
         if match:
             status = match.group(1).strip().upper()
             if status == "APPROVED":
@@ -90,17 +105,17 @@ class ReportParser:
                 return "minor_issues"
 
         # 2. 尝试新格式：检测Quality Assessment表格和Issues
-        has_quality_table = bool(re.search(r'###\s+Quality\s+Assessment', content, re.IGNORECASE))
+        has_quality_table = bool(ReportParser._QUALITY_ASSESSMENT_PATTERN.search(content))
 
         if has_quality_table:
             # 新格式：从Quality Assessment和Issues推断status
             # 检查是否有Critical评分或P0 issues
-            has_critical = bool(re.search(r'\|\s*Critical\s*\||Issues\s+Found.*?\[P0\]', content, re.IGNORECASE | re.DOTALL))
+            has_critical = bool(ReportParser._CRITICAL_PATTERN.search(content))
             if has_critical:
                 return "major_issues"
 
             # 检查是否有Major评分或P1 issues
-            has_major = bool(re.search(r'\|\s*Major\s*\||Issues\s+Found.*?\[P1\]', content, re.IGNORECASE | re.DOTALL))
+            has_major = bool(ReportParser._MAJOR_PATTERN.search(content))
             if has_major:
                 return "minor_issues"
 
@@ -108,9 +123,9 @@ class ReportParser:
             return "approved"
 
         # 3. Fallback: 旧格式兼容（检查Overall Assessment和Conclusion章节）
-        has_overall_assessment = bool(re.search(r'##\s+Overall\s+Assessment', content, re.IGNORECASE))
-        has_conclusion = bool(re.search(r'##\s+Conclusion', content, re.IGNORECASE))
-        has_error_markers = bool(re.search(r'\[ERROR\]|\bFAILED\b|\bCRITICAL\b', content, re.IGNORECASE))
+        has_overall_assessment = bool(ReportParser._OVERALL_ASSESSMENT_SECTION_PATTERN.search(content))
+        has_conclusion = bool(ReportParser._CONCLUSION_SECTION_PATTERN.search(content))
+        has_error_markers = bool(ReportParser._ERROR_MARKERS_PATTERN.search(content))
 
         if (has_overall_assessment or has_conclusion) and not has_error_markers and len(content.strip()) > 500:
             # 报告完整且无明显错误，默认为approved
@@ -128,15 +143,14 @@ class ReportParser:
         issues = []
 
         # Find "## Issue List" section
-        match = re.search(r'##\s*Issue\s*List\s*\n(.*?)(?=\n##|\Z)', content, re.DOTALL | re.IGNORECASE)
+        match = ReportParser._ISSUE_SECTION_PATTERN.search(content)
         if not match:
             return issues
 
         issues_section = match.group(1)
 
         # Extract issues: - [P0] description or - [P1] file:line - description
-        pattern = r'-\s*\[([P0-2])\]\s*(.+)'
-        for issue_match in re.finditer(pattern, issues_section):
+        for issue_match in ReportParser._ISSUE_ITEM_PATTERN.finditer(issues_section):
             priority = issue_match.group(1).strip()
             description = issue_match.group(2).strip()
 
@@ -161,15 +175,14 @@ class ReportParser:
         suggestions = []
 
         # Find "## Improvement Suggestions" section
-        match = re.search(r'##\s*Improvement\s*Suggestions\s*\n(.*?)(?=\n##|\Z)', content, re.DOTALL | re.IGNORECASE)
+        match = ReportParser._SUGGESTION_SECTION_PATTERN.search(content)
         if not match:
             return suggestions
 
         suggestions_section = match.group(1)
 
         # Extract suggestions: - suggestion
-        pattern = r'-\s*(.+)'
-        for sug_match in re.finditer(pattern, suggestions_section):
+        for sug_match in ReportParser._SUGGESTION_ITEM_PATTERN.finditer(suggestions_section):
             suggestion = sug_match.group(1).strip()
 
             # Skip empty entries
