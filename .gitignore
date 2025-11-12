@@ -49,3 +49,5 @@ test_*.py
 test_*.md
 test_output/
 .claude
+.mcp.json
+CLAUDE.md
