@@ -7,7 +7,7 @@
 ### Step 1: 获取最新规则（自动缓存）
 1. 调用 `mcp__vet-mediator-mcp__get_review_rule_hash` 获取当前规则版本hash
 2. 检查本地 `VetMediatorSessions` 目录下是否有对应hash的缓存文件（`vet_mediator_rule_{hash}.md`）
-3. **如无缓存**：调用 `mcp__vet-mediator-mcp__get_review_rules(rule_type="file-generator")` 保存到本地 `VetMediatorSessions` 目录下（`vet_mediator_rule_{hash}.md`）并删除其他非当前hash的`vet_mediator_rule_*.md`
+3. **如无缓存**：调用 `mcp__vet-mediator-mcp__update_review_rules(rule_type="file-generator", dst_path="{project_root}/VetMediatorSessions")` 注意：`{project_root}` 需要替换为实际项目根目录的完整绝对路径
 4. **如有缓存**：直接读取本地文件（`vet_mediator_rule_{hash}.md`）
 
 ### Step 2-N: 按规则执行审查流程

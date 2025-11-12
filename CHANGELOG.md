@@ -5,6 +5,51 @@ All notable changes to VetMediator MCP will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.2] - 2025-11-12
+
+### 🔄 Changed
+- **Breaking**: Renamed `get_review_rules` MCP tool to `update_review_rules` with `dst_path` parameter
+  - MCP server now directly writes rule files to specified directory to avoid content truncation in long responses
+  - Updated workflow in `CLAUDE.md` and `rules/CLAUDE.md` to use new tool
+  - Updated `docs/en/README.md` with new workflow instructions
+- **Translation**: Translated all Chinese content in `template.py` and `rule_templates.py` to English
+  - Improved clarity and removed ambiguity in all template instructions
+  - Ensured consistent terminology across all templates
+- **Documentation**: Consolidated redundant path instructions in `GENERIC_REVIEWER_TEMPLATE` (~30% reduction while maintaining clarity)
+
+### ✨ Added
+- **Encoding**: Added UTF-8 without BOM encoding requirements at all file operation points (10 locations)
+  - Added encoding notes in template format sections (OriginalRequirement.md, TaskPlanning.md, ReviewIndex.md, Individual Task File)
+  - Added encoding reminders in workflow steps (Step 0, Step 2, Step 6)
+  - Added encoding requirements in MCP tool parameter descriptions
+- **Report Language**: Added report language matching rule - report follows user's input language
+  - If user input is predominantly Chinese → report in Chinese
+  - If user input is predominantly Japanese → report in Japanese
+  - If user input is predominantly English → report in English
+  - Added rule in both REPORT_FORMAT_TEMPLATE and Step 6 workflow
+
+### 🐛 Fixed
+- **Reliability**: Fixed potential content truncation issue when retrieving long rule documents via MCP
+  - Long rule documents (hundreds of lines) are now written directly to filesystem by MCP server
+  - Eliminates risk of MCP response truncation for large content
+
+### 📝 Technical Details
+- **src/server.py**:
+  - Added `UpdateReviewRulesArgs` class with `dst_path` parameter
+  - Replaced `get_review_rules` handler with `update_review_rules` implementation
+  - New implementation: creates directory, deletes old rule files, writes new file with UTF-8 encoding
+- **src/template.py**:
+  - Updated `REPORT_FORMAT_TEMPLATE` with language matching rule
+  - Added UTF-8 encoding notes in FILE ACCESS INSTRUCTIONS and workflow steps
+  - Added language matching reminder in Step 6
+- **src/rule_templates.py**:
+  - Translated module docstring and all function docstrings to English
+  - Translated complete RULE_FILE_GENERATOR content (440+ lines)
+  - Added UTF-8 encoding requirements in each template section
+- **pyproject.toml**: Version bump from 2.0.1 to 2.0.2
+
+---
+
 ## [2.0.1] - 2025-11-12
 
 ### ✨ 改进 (Improvements)

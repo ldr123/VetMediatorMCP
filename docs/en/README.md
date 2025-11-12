@@ -332,8 +332,9 @@ Your `CLAUDE.md` should contain the following content:
 
 **Execution Steps**:
 1. Call `mcp__vet-mediator-mcp__get_review_rule_hash` to check for cached rules
-2. Download rules via MCP if needed (first use or update)
-3. Generate required files according to cached rules (UTF-8 encoding)
+2. If no cache exists, call `mcp__vet-mediator-mcp__update_review_rules(rule_type="file-generator", dst_path="{project_root}/VetMediatorSessions")` to update rules
+   - MCP server automatically deletes old rule files and writes the latest version
+3. Generate required files according to cached rules (UTF-8 encoding without BOM)
 4. Call MCP tool: `mcp__vet-mediator-mcp__start_review`
    - Required parameters: `review_index_path`, `draft_paths`, `project_root`
    - Recommended parameter: `initiator="Claude Code"` (identifies AI tool initiating review)

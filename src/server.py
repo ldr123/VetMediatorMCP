@@ -60,12 +60,16 @@ class GetReviewRuleHashArgs(BaseModel):
     )
 
 
-class GetReviewRulesArgs(BaseModel):
-    """get_review_rules工具的参数"""
+class UpdateReviewRulesArgs(BaseModel):
+    """update_review_rules工具的参数"""
     rule_type: str = Field(
         default="file-generator",
         description="规则类型：file-generator（文件生成规则）"
     )
+    dst_path: str = Field(
+        description="完整目标路径（如：/path/to/project/VetMediatorSessions），MCP服务器会将规则文件写入此目录"
+    )
+
 
 
 
@@ -102,13 +106,13 @@ async def list_tools() -> list[Tool]:
             inputSchema=GetReviewRuleHashArgs.model_json_schema()
         ),
         Tool(
-            name="get_review_rules",
+            name="update_review_rules",
             description=(
-                "获取完整的审查规则文档内容（Markdown格式）。"
-                "仅在hash不匹配时调用，用于更新本地缓存。"
+                "更新审查规则文件到指定目录。"
+                "MCP服务器会自动删除旧的规则缓存文件并写入最新版本。"
                 "规则文档包含：文件格式规范、模板、示例、MCP调用说明等。"
             ),
-            inputSchema=GetReviewRulesArgs.model_json_schema()
+            inputSchema=UpdateReviewRulesArgs.model_json_schema()
         )
     ]
 
@@ -118,7 +122,7 @@ async def call_tool(name: str, arguments: Any) -> list[TextContent]:
     """处理MCP工具调用
 
     Args:
-        name: 工具名称（"start_review"、"show_cli_config"、"get_review_rule_hash"、"get_review_rules"）
+        name: 工具名称（"start_review"、"show_cli_config"、"get_review_rule_hash"、"update_review_rules"）
         arguments: 工具参数
 
     Returns:
@@ -140,12 +144,36 @@ async def call_tool(name: str, arguments: Any) -> list[TextContent]:
         except Exception as e:
             return [TextContent(type="text", text=f"[ERROR] Failed to calculate hash: {str(e)}")]
 
-    elif name == "get_review_rules":
-        args = GetReviewRulesArgs(**arguments)
+    elif name == "update_review_rules":
+        args = UpdateReviewRulesArgs(**arguments)
         try:
-            # 从内置模板获取规则内容
+            # Get rule content and hash
             content = get_rule_content(args.rule_type)
-            return [TextContent(type="text", text=content)]
+            hash_value = hashlib.sha256(content.encode('utf-8')).hexdigest()[:12]
+
+            # Ensure target directory exists
+            dst_dir = Path(args.dst_path)
+            dst_dir.mkdir(parents=True, exist_ok=True)
+
+            # Delete all old rule files
+            deleted_files = []
+            for old_file in dst_dir.glob("vet_mediator_rule_*.md"):
+                deleted_files.append(str(old_file.name))
+                old_file.unlink()
+
+            # Write new rule file with UTF-8 without BOM
+            new_file_path = dst_dir / f"vet_mediator_rule_{hash_value}.md"
+            new_file_path.write_text(content, encoding='utf-8')
+
+            # Build success message
+            success_msg = f"[SUCCESS] Rule file updated successfully\n\n"
+            success_msg += f"File: {new_file_path}\n"
+            success_msg += f"Hash: {hash_value}\n"
+            if deleted_files:
+                success_msg += f"Deleted old files: {', '.join(deleted_files)}\n"
+
+            return [TextContent(type="text", text=success_msg)]
+
         except KeyError:
             available_types = get_available_rule_types()
             return [TextContent(
@@ -153,7 +181,7 @@ async def call_tool(name: str, arguments: Any) -> list[TextContent]:
                 text=f"[ERROR] Unknown rule type: {args.rule_type}. Available types: {', '.join(available_types)}"
             )]
         except Exception as e:
-            return [TextContent(type="text", text=f"[ERROR] Failed to read rules: {str(e)}")]
+            return [TextContent(type="text", text=f"[ERROR] Failed to update rules: {str(e)}")]
 
     elif name == "start_review":
         args = StartReviewArgs(**arguments)
