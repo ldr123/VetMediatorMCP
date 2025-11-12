@@ -27,7 +27,6 @@ BUILTIN_PROMPT = (
     "Write report.md to {session_rel_path}/report.md using relative path from project root. "
     "IMPORTANT: Use file reading tools (not shell commands) with relative paths from project root. "
     "Example: Read '{session_rel_path}/ReviewIndex.md' (not './ReviewIndex.md' or absolute paths). "
-    "DO NOT use shell commands (ls, dir, cat, type, Get-Content) to access files. "
     "CRITICAL REQUIREMENT: You MUST use UTF-8 encoding WITHOUT BOM (Byte Order Mark) "
     "for ALL file operations (reading ReviewIndex.md, reading task files, writing report.md, "
     "and any other file I/O). Do NOT use UTF-8 with BOM, UTF-16, or any other encoding. "

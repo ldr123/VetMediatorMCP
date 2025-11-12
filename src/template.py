@@ -84,7 +84,6 @@ You will receive the following files (some optional):
 - Example: Read "{SESSION_REL_PATH}/ReviewIndex.md" (not "./ReviewIndex.md" or absolute paths)
 - Example: Read "{SESSION_REL_PATH}/Task1_XXX.md" for task files
 - Example: Read "{SESSION_REL_PATH}/OriginalRequirement.md" if it exists
-- DO NOT use shell commands (ls, dir, cat, type, Get-Content, etc.) to access files
 - DO NOT change working directory
 - DO NOT use absolute paths or shell path manipulation
 - DO NOT use "./" or relative paths without the session directory prefix
@@ -110,7 +109,6 @@ Execute all steps sequentially without stopping or waiting for user input.
 - The session directory path is: {SESSION_REL_PATH}/ (relative to project root)
 - Use file reading tools to check if "{SESSION_REL_PATH}/OriginalRequirement.md" exists
 - Use file reading tools to check if "{SESSION_REL_PATH}/TaskPlanning.md" exists
-- DO NOT use shell commands (ls, dir, cat, type) to check files
 - DO NOT use "./" or relative paths without the session directory prefix
 - If BOTH exist (you can read them), proceed with planning validation in Step 1
 - If NEITHER exist (file reading fails), skip planning validation and go directly to Step 2
@@ -140,7 +138,6 @@ Execute all steps sequentially without stopping or waiting for user input.
 - All task files are in the same session directory: {SESSION_REL_PATH}/
 - Read each task file using relative paths from project root
 - Example: Read "{SESSION_REL_PATH}/Task1_XXX.md", "{SESSION_REL_PATH}/Task2_XXX.md", etc.
-- DO NOT use shell commands (ls, dir, cat, type) to list or read files
 - DO NOT use "./" or relative paths without the session directory prefix
 - Use file reading tools with relative paths from project root (always include the session directory path: {SESSION_REL_PATH}/)
 - Review each task file according to the index
