@@ -142,79 +142,33 @@ AI代理解析报告并决定后续动作：
 - **Python 3.10+** - [下载](https://python.org)
 - **uvx** - Python包运行器（随uv一起安装）：`pip install uv`
 - **MCP兼容的AI代理** - 如Claude Code、Cursor等
-- **CLI审查工具** - 如Codex、Claude CLI或iFlow（至少安装一个）
+- **CLI审查工具** - 如iFlow、Codex或Claude CLI（至少安装一个）
 
-### 安装MCP服务器
+### 一键安装（推荐）
 
-**方式一：从Git仓库安装（推荐）**
+👉 **[3分钟快速开始指南](../QUICKSTART.md)**
 
-📋 **步骤1：复制MCP配置到项目根目录**
+使用自动化安装脚本完成所有配置：
 
-从本仓库复制 `rules/.mcp.json` 到你的项目根目录并命名为 `.mcp.json`：
-
-```json
-{
-  "mcpServers": {
-    "vet-mediator-mcp": {
-      "command": "uvx",
-      "args": [
-        "--from",
-        "git+https://gitee.com/ldr123/VetMediatorMCP.git",
-        "vet-mediator-mcp"
-      ]
-    }
-  }
-}
+```bash
+curl -sSL https://raw.githubusercontent.com/ldr123/VetMediatorMCP/master/install.sh | bash
 ```
 
-**国际区**：如果不想使用gitee可以使用GitHub镜像：
-```json
-"git+https://github.com/ldr123/VetMediatorMCP.git"
+**脚本自动完成**：
+- ✅ 依赖检查（Python 3.10+、uvx）
+- ✅ 生成 `.mcp.json` 配置文件
+- ✅ 检测已安装的CLI工具
+- ✅ 注入使用规则到 `CLAUDE.md`
+- ✅ 创建 `VetMediatorSessions/` 目录
+
+**验证安装**：
+```bash
+./verify-config.sh
 ```
 
-📋 **步骤2：添加VetMediator配置到AI工具的规则文件**
+### 手动安装（开发者）
 
-查看本仓库的 `rules/CLAUDE.md` 文件内容，并将其添加到你的AI工具规则文件的**开头部分**。
-
-**不同AI工具的配置方式**:
-
-| AI工具 | 规则文件 | 位置 | 说明 |
-|--------|---------|------|------|
-| **Claude Code** | `CLAUDE.md` | 项目根目录 | 系统预设 |
-| **Cursor** | `*.mdc` | `.cursor/rules/` | 多级优先级，自动加载 |
-| **Codex** | `AGENTS.md` | 项目根目录 | 支持全局与项目级 |
-| **iFlow** | `IFLOW.md` | 项目根目录 | 支持包含其他文件 |
-| **Gemini CLI** | `GEMINI.md` | 项目根目录 | 支持模块级规则 |
-
-**Claude Code配置示例**:
-- 将 `rules/CLAUDE.md` 的内容复制到项目根目录的 `CLAUDE.md` **开头部分**
-- 如果项目还没有 `CLAUDE.md` 文件，创建一个并粘贴内容
-
-**Cursor配置示例**:
-- 在项目中创建 `.cursor/rules/vetmediator.mdc`
-- 将 `rules/CLAUDE.md` 的内容复制进去
-
-**Codex配置示例**:
-- 将 `rules/CLAUDE.md` 的内容复制到项目根目录的 `AGENTS.md` **开头部分**
-
-**iFlow配置示例**:
-- 将 `rules/CLAUDE.md` 的内容复制到项目根目录的 `IFLOW.md` **开头部分**
-
-**Gemini CLI配置示例**:
-- 将 `rules/CLAUDE.md` 的内容复制到项目根目录的 `GEMINI.md` **开头部分**
-
-**规则内容说明**：AI工具首次使用时会通过MCP自动下载并缓存完整的审查规则（约4000 tokens），后续使用直接读取本地缓存，大幅节省Token消耗。
-
-**文件位置总结**:
-```
-YourProject/
-├── .mcp.json                           # MCP服务器配置
-└── CLAUDE.md (或 AGENTS.md 等)        # AI工具规则文件（将VetMediator配置添加到开头）
-```
-
-**方式二：本地开发安装**
-
-克隆仓库后，在`.mcp.json`中配置本地路径：
+克隆仓库后，在 `.mcp.json` 中配置本地路径：
 
 ```json
 {
@@ -223,7 +177,7 @@ YourProject/
       "command": "uv",
       "args": [
         "--directory",
-        "D:/Research/vet-mediator-mcp",
+        "/path/to/VetMediatorMCP",
         "run",
         "vet-mediator-mcp"
       ]
@@ -232,136 +186,11 @@ YourProject/
 }
 ```
 
-### 配置CLI工具
-
-创建`.VetMediatorSetting.json`（可选，使用默认配置无需此文件）：
-
-```json
-{
-  "current_cli_tool": "iflow",
-  "env_vars": {
-    "PYTHONIOENCODING": "utf-8",
-    "PYTHONUTF8": "1"
-  },
-  "cli_presets": {
-    "iflow": {
-      "executable": "iflow",
-      "args": ["-y", "-p"],
-      "log_file_name": "iflow.log",
-      "install_command": "npm i -g @iflow-ai/iflow-cli"
-    },
-    "codex": {
-      "executable": "codex",
-      "args": ["exec", "--skip-git-repo-check"],
-      "log_file_name": "codex.log",
-      "install_command": "npm install -g @openai/codex"
-    },
-    "claude": {
-      "executable": "claude",
-      "args": ["--dangerously-skip-permissions"],
-      "log_file_name": "claude.log",
-      "install_command": "npm install -g @anthropic-ai/claude-code"
-    }
-  }
-}
-```
-
-### 安装CLI审查工具
-
-VetMediator需要至少一个CLI审查工具才能工作。以下是推荐工具的安装方法：
-
-#### iFlow CLI（推荐）
-
-**系统要求**：
-- Node.js 20+
-- 至少4GB内存
-- 稳定的网络连接
-
-**安装方法**：
-
-**macOS/Linux**：
-```bash
-# 方式1：自动安装脚本
-bash -c "$(curl -fsSL https://gitee.com/iflow-ai/iflow-cli/raw/main/install.sh)"
-
-# 方式2：NPM安装
-npm i -g @iflow-ai/iflow-cli@latest
-```
-
-**Windows**：
-1. 从 [nodejs.org](https://nodejs.org) 下载并安装Node.js
-2. 重启终端（推荐使用Windows Terminal）
-3. 执行安装命令：
-```bash
-npm install -g @iflow-ai/iflow-cli@latest
-```
-
-**验证安装**：
-```bash
-iflow --version
-```
-
-**首次使用**：运行 `iflow` 选择认证方式（iFlow登录、API Key或OpenAI兼容API）
-
----
-
-#### Codex CLI
-
-```bash
-npm install -g @openai/codex
-```
-
-#### Claude Code CLI
-
-```bash
-npm install -g @anthropic-ai/claude-code
-```
-
----
-
-### 在AI代理中配置使用规则
-
-查看本仓库的 `rules/CLAUDE.md` 文件内容，并将其复制到你的项目根目录的 `CLAUDE.md` 文件的**开头部分**（如果在安装MCP服务器时已添加，跳过此步骤）。
-
-`CLAUDE.md` 应包含以下内容：
-
-```markdown
-## 🤝 CLI工具交叉验证
-
-**触发词**：`使用vet验证` 或 `让vet帮我验证` 或 `使用CLI工具交叉验证`
-
-**执行步骤**：
-1. 读取规则文件：`rules/rule-agent-file-generator.md`
-2. 按规则生成ReviewIndex.md和多个任务文件（UTF-8编码）
-3. 调用MCP工具：`mcp__vet-mediator-mcp__start_review`
-   - 必需参数：`review_index_path`、`draft_paths`、`project_root`
-   - 推荐参数：`initiator="Claude Code"`（标识发起审查的AI工具）
-
-**支持的CLI工具**：
-- iFlow（默认）
-- Claude Code
-- 其他AI代码审查工具（通过配置文件`.VetMediatorSetting.json`指定）
-
-## 🔧 CLI工具配置管理
-
-**触发词**：`查看CLI配置` 或 `切换CLI工具` 或 `show cli config`
-
-**功能说明**：
-- 显示GUI界面查看所有配置的CLI工具状态
-- 实时检查每个工具的健康状态（是否已安装）
-- 允许用户一键切换当前激活的CLI工具
-- 显示配置文件路径（全局和项目）
-
-**执行步骤**：
-调用MCP工具：`mcp__vet-mediator-mcp__show_cli_config`
-- 必需参数：`project_root`（项目根目录路径）
-```
-
 ### 首次使用
 
-1. 重启AI代理以加载MCP配置
-2. 输入触发词（如"使用vet验证"）
-3. AI代理自动生成任务文件并调用MCP工具
+1. 重启AI工具（Claude Code / Cursor等）以加载MCP配置
+2. 输入触发词：`使用vet验证` 或 `use vet validation`
+3. AI工具自动生成任务文件并调用MCP工具
 4. 实时监控窗口显示审查进度
 5. 查看生成的审查报告
 
@@ -455,6 +284,136 @@ approved | major_issues | minor_issues
 - 一键切换当前激活的CLI工具
 - 查看配置文件路径（全局和项目）
 
+### get_review_rule_hash
+
+获取审查规则文件的SHA-256 hash值（前12位），用于本地缓存版本检测。
+
+**参数**：
+- `rule_type` (可选): 规则类型，默认 "file-generator"
+
+**返回**：
+```json
+{
+  "rule_type": "file-generator",
+  "hash": "a1b2c3d4e5f6",
+  "description": "Rule file hash for cache validation"
+}
+```
+
+**用途**：
+- AI代理可以通过hash判断本地缓存的规则文件是否是最新版本
+- 避免每次都重新下载规则文件，节省Token消耗
+
+### update_review_rules
+
+更新审查规则文件到指定目录。
+
+**参数**：
+- `dst_path` (必需): 完整目标路径（如 `/path/to/project/VetMediatorSessions`）
+- `rule_type` (可选): 规则类型，默认 "file-generator"
+
+**功能**：
+- MCP服务器会自动删除旧的规则缓存文件
+- 写入最新版本的规则文件到指定目录
+- 规则文档包含：文件格式规范、模板、示例、MCP调用说明等
+
+**返回**：
+```json
+{
+  "status": "success",
+  "rule_file_path": "/path/to/project/VetMediatorSessions/vet_mediator_rule_a1b2c3d4e5f6.md",
+  "hash": "a1b2c3d4e5f6",
+  "message": "规则文件已更新"
+}
+```
+
+---
+
+## 🔧 高级配置
+
+### 两阶段审查模式
+
+VetMediator 支持两阶段审查：**第一阶段**审查任务规划，**第二阶段**审查代码实现。
+
+**启用方法**：
+
+在调用 `start_review` 时提供 `original_requirement_path` 和 `task_planning_path` 参数：
+
+```python
+mcp__vet-mediator-mcp__start_review(
+    review_index_path="...",
+    draft_paths=["..."],
+    project_root="...",
+    original_requirement_path="/path/to/OriginalRequirement.md",  # 原始需求
+    task_planning_path="/path/to/TaskPlanning.md"                  # 任务规划
+)
+```
+
+**工作流程**：
+1. CLI工具先审查任务规划是否合理（与原始需求对比）
+2. 如果规划通过，再审查具体的代码实现
+3. 两次审查结果都会包含在最终报告中
+
+**适用场景**：
+- 复杂功能开发，需要先规划后实现
+- 团队协作，需要先审查设计再审查代码
+- 高质量要求，双重保障代码质量
+
+### 自定义CLI工具配置
+
+默认情况下，VetMediator 会自动检测已安装的CLI工具。你也可以手动配置：
+
+**项目级配置**（优先级高）：
+
+在项目根目录创建 `.VetMediatorSetting.json`：
+
+```json
+{
+  "tools": [
+    {
+      "name": "iflow",
+      "executable": "iflow",
+      "enabled": true
+    },
+    {
+      "name": "codex",
+      "executable": "codex",
+      "args": ["--custom-arg"],
+      "enabled": false
+    }
+  ],
+  "active_tool": "iflow"
+}
+```
+
+**全局配置**（低优先级）：
+
+配置文件位置：`~/.vetmediator/config.json`
+
+格式同项目级配置。
+
+### 性能优化建议
+
+**1. 规则文件缓存**
+
+规则文件会自动缓存到 `VetMediatorSessions/` 目录：
+- 文件名格式：`vet_mediator_rule_{hash}.md`
+- 每次审查前会自动检查hash，只在版本变化时重新下载
+- 建议将 `VetMediatorSessions/vet_mediator_rule_*.md` 加入版本控制（可选）
+
+**2. 任务文件大小控制**
+
+为了获得最佳性能：
+- 单个任务文件建议不超过 1000 行代码
+- 复杂功能建议拆分为多个任务文件
+- 使用 `draft_paths` 参数按顺序提交多个任务
+
+**3. 并发审查限制**
+
+- 默认情况下，VetMediator 一次只处理一个审查任务
+- 如需并发，可以在不同项目目录中启动多个审查
+- 注意CLI工具的API调用限制
+
 ---
 
 ## 🛠️ 故障排除
@@ -492,6 +451,119 @@ claude --version
 - 这是正常行为，在无GUI环境下自动降级到CLI模式
 - 所有功能保持不变，只是没有GUI窗口
 - 如需GUI，确保DISPLAY环境变量设置正确（Linux）
+
+### 规则文件下载失败
+
+**症状**：`[ERROR] Failed to download rule file`
+
+**解决方案**：
+```bash
+# 1. 检查网络连接
+curl -I https://raw.githubusercontent.com/ldr123/VetMediatorMCP/master/rules/CLAUDE.md
+
+# 2. 手动下载规则文件
+cd VetMediatorSessions
+wget https://raw.githubusercontent.com/ldr123/VetMediatorMCP/master/rules/rule-agent-file-generator.md
+# 重命名为 vet_mediator_rule_{hash}.md
+
+# 3. 中国用户使用Gitee镜像
+# curl -O https://gitee.com/ldr123/VetMediatorMCP/raw/master/rules/rule-agent-file-generator.md
+```
+
+### VetMediatorSessions 目录权限问题
+
+**症状**：`[ERROR] Permission denied: VetMediatorSessions/`
+
+**解决方案**：
+```bash
+# 检查目录权限
+ls -la VetMediatorSessions/
+
+# 修复权限（Linux/macOS）
+chmod 755 VetMediatorSessions/
+chmod 644 VetMediatorSessions/*
+
+# Windows（Git Bash）
+# 右键点击目录 -> 属性 -> 安全 -> 编辑权限
+```
+
+### MCP工具调用失败
+
+**症状**：`Tool 'vet-mediator-mcp' not found`
+
+**解决方案**：
+1. 检查 `.mcp.json` 配置是否正确
+2. 重启AI工具（Claude Code / Cursor）
+3. 运行验证脚本：`./verify-config.sh`
+4. 检查 uvx 是否正确安装：`uvx --version`
+
+### Python 版本过低
+
+**症状**：`Python 3.10+ required, but found Python 3.9`
+
+**解决方案**：
+```bash
+# macOS (使用Homebrew)
+brew install python@3.10
+
+# Ubuntu/Debian
+sudo apt update
+sudo apt install python3.10
+
+# Windows
+# 从 https://python.org 下载并安装 Python 3.10+
+
+# 验证安装
+python3 --version
+```
+
+### 审查报告格式错误
+
+**症状**：CLI工具生成的报告无法解析
+
+**解决方案**：
+1. 检查CLI工具版本是否最新：`iflow --version`
+2. 查看原始报告文件：`VetMediatorSessions/session-*/Report.md`
+3. 确认CLI工具配置正确（API密钥等）
+4. 尝试切换到其他CLI工具
+
+### 诊断命令集合
+
+**收集诊断信息**：
+```bash
+# 运行日志收集脚本
+./collect-logs.sh
+
+# 或手动收集
+echo "=== 系统信息 ===" > debug.log
+uname -a >> debug.log
+python3 --version >> debug.log
+uvx --version >> debug.log
+
+echo "=== 配置文件 ===" >> debug.log
+cat .mcp.json >> debug.log
+
+echo "=== CLI工具 ===" >> debug.log
+iflow --version >> debug.log 2>&1 || echo "iFlow: not installed" >> debug.log
+codex --version >> debug.log 2>&1 || echo "Codex: not installed" >> debug.log
+
+echo "=== 最近错误 ===" >> debug.log
+grep -r "ERROR" VetMediatorSessions/ | tail -n 20 >> debug.log
+
+# 将 debug.log 附加到 GitHub Issue
+```
+
+**快速诊断**：
+```bash
+# 运行验证脚本
+./verify-config.sh
+
+# 检查具体项目
+python3 -c "import sys; print(f'Python {sys.version}')"
+uvx --version
+ls -la .mcp.json
+ls -la VetMediatorSessions/
+```
 
 ---
 
@@ -536,6 +608,6 @@ MIT License - 详见LICENSE文件
 
 ---
 
-**版本**：2.0.1
-**最后更新**：2025-11-12
+**版本**：2.1.0
+**最后更新**：2025-11-13
 **兼容性**：Python 3.10+, MCP 1.0.0+

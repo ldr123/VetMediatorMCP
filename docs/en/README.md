@@ -142,77 +142,31 @@ Tool switch completed, interface auto-refreshes:
 - **Python 3.10+** - [Download](https://python.org)
 - **uvx** - Python package runner (installed with uv): `pip install uv`
 - **MCP-compatible AI agent** - e.g., Claude Code, Cursor, etc.
-- **CLI review tool** - e.g., Codex, Claude CLI or iFlow (at least one required)
+- **CLI review tool** - e.g., iFlow, Codex or Claude CLI (at least one required)
 
-### Install MCP Server
+### One-Command Installation (Recommended)
 
-**Method 1: Install from Git Repository (Recommended)**
+👉 **[3-Minute Quick Start Guide](../QUICKSTART.md)**
 
-📋 **Step 1: Copy MCP configuration to your project root**
+Use the automated installation script to complete all configuration:
 
-Copy `rules/.mcp.json` from this repository to your project root directory as `.mcp.json`:
-
-```json
-{
-  "mcpServers": {
-    "vet-mediator-mcp": {
-      "command": "uvx",
-      "args": [
-        "--from",
-        "git+https://gitee.com/ldr123/VetMediatorMCP.git",
-        "vet-mediator-mcp"
-      ]
-    }
-  }
-}
+```bash
+curl -sSL https://raw.githubusercontent.com/ldr123/VetMediatorMCP/master/install.sh | bash
 ```
 
-**International Region**: If you don't want to use Gitee, use GitHub mirror:
-```json
-"git+https://github.com/ldr123/VetMediatorMCP.git"
+**Script automatically completes**:
+- ✅ Dependency check (Python 3.10+, uvx)
+- ✅ Generate `.mcp.json` configuration file
+- ✅ Detect installed CLI tools
+- ✅ Inject usage rules to `CLAUDE.md`
+- ✅ Create `VetMediatorSessions/` directory
+
+**Verify installation**:
+```bash
+./verify-config.sh
 ```
 
-📋 **Step 2: Add VetMediator configuration to your AI tool's rule file**
-
-View the content of `rules/CLAUDE.md` in this repository, and add it to your AI tool's rule file **at the beginning**.
-
-**Configuration for different AI tools**:
-
-| AI Tool | Rule File | Location | Notes |
-|---------|-----------|----------|-------|
-| **Claude Code** | `CLAUDE.md` | Project root | System default |
-| **Cursor** | `*.mdc` | `.cursor/rules/` | Multi-level priority, auto-load |
-| **Codex** | `AGENTS.md` | Project root | Supports global & project level |
-| **iFlow** | `IFLOW.md` | Project root | Supports including other files |
-| **Gemini CLI** | `GEMINI.md` | Project root | Supports module-level rules |
-
-**Example for Claude Code**:
-- Copy the content of `rules/CLAUDE.md` to the **beginning** of your project's `CLAUDE.md`
-- If your project doesn't have a `CLAUDE.md` file yet, create one and paste the content
-
-**Example for Cursor**:
-- Create `.cursor/rules/vetmediator.mdc` in your project
-- Copy the content of `rules/CLAUDE.md` into it
-
-**Example for Codex**:
-- Copy the content of `rules/CLAUDE.md` to the **beginning** of your project's `AGENTS.md`
-
-**Example for iFlow**:
-- Copy the content of `rules/CLAUDE.md` to the **beginning** of your project's `IFLOW.md`
-
-**Example for Gemini CLI**:
-- Copy the content of `rules/CLAUDE.md` to the **beginning** of your project's `GEMINI.md`
-
-**About the rules**: When AI tools first use VetMediator, they automatically download and cache the complete review rules (~4000 tokens) via MCP. Subsequent uses read from local cache, significantly saving token consumption.
-
-**File locations summary**:
-```
-YourProject/
-├── .mcp.json                           # MCP server configuration
-└── CLAUDE.md (or AGENTS.md, etc.)     # AI tool rule file (add VetMediator config to beginning)
-```
-
-**Method 2: Local Development Installation**
+### Manual Installation (Developers)
 
 After cloning the repository, configure local path in `.mcp.json`:
 
@@ -223,7 +177,7 @@ After cloning the repository, configure local path in `.mcp.json`:
       "command": "uv",
       "args": [
         "--directory",
-        "D:/Research/vet-mediator-mcp",
+        "/path/to/VetMediatorMCP",
         "run",
         "vet-mediator-mcp"
       ]
@@ -232,140 +186,13 @@ After cloning the repository, configure local path in `.mcp.json`:
 }
 ```
 
-### Configure CLI Tools
-
-Create `.VetMediatorSetting.json` (optional, no need if using default config):
-
-```json
-{
-  "current_cli_tool": "iflow",
-  "env_vars": {
-    "PYTHONIOENCODING": "utf-8",
-    "PYTHONUTF8": "1"
-  },
-  "cli_presets": {
-    "iflow": {
-      "executable": "iflow",
-      "args": ["-y", "-p"],
-      "log_file_name": "iflow.log",
-      "install_command": "npm i -g @iflow-ai/iflow-cli"
-    },
-    "codex": {
-      "executable": "codex",
-      "args": ["exec", "--skip-git-repo-check"],
-      "log_file_name": "codex.log",
-      "install_command": "npm install -g @openai/codex"
-    },
-    "claude": {
-      "executable": "claude",
-      "args": ["--dangerously-skip-permissions"],
-      "log_file_name": "claude.log",
-      "install_command": "npm install -g @anthropic-ai/claude-code"
-    }
-  }
-}
-```
-
-### Install CLI Review Tools
-
-VetMediator requires at least one CLI review tool to work. Here are installation methods for recommended tools:
-
-#### iFlow CLI (Recommended)
-
-**System Requirements**:
-- Node.js 20+
-- At least 4GB memory
-- Stable internet connection
-
-**Installation**:
-
-**macOS/Linux**:
-```bash
-# Method 1: Automated installation script
-bash -c "$(curl -fsSL https://gitee.com/iflow-ai/iflow-cli/raw/main/install.sh)"
-
-# Method 2: NPM installation
-npm i -g @iflow-ai/iflow-cli@latest
-```
-
-**Windows**:
-1. Download and install Node.js from [nodejs.org](https://nodejs.org)
-2. Restart terminal (Windows Terminal recommended)
-3. Execute installation command:
-```bash
-npm install -g @iflow-ai/iflow-cli@latest
-```
-
-**Verify Installation**:
-```bash
-iflow --version
-```
-
-**First Use**: Run `iflow` and choose authentication method (iFlow Login, API Key, or OpenAI-compatible API)
-
----
-
-#### Codex CLI
-
-```bash
-npm install -g @openai/codex
-```
-
-#### Claude Code CLI
-
-```bash
-npm install -g @anthropic-ai/claude-code
-```
-
----
-
-### Configure Usage Rules in AI Agent
-
-View the content of `rules/CLAUDE.md` in this repository, and copy it to the **beginning** of your project's `CLAUDE.md` file (in your project root directory). Skip this step if you've already added it during MCP server installation.
-
-Your `CLAUDE.md` should contain the following content:
-
-```markdown
-## 🤝 CLI Tool Cross-Validation
-
-**Trigger Words**: `use vet verification` or `let vet verify` or `use CLI tool cross-validation`
-
-**Execution Steps**:
-1. Call `mcp__vet-mediator-mcp__get_review_rule_hash` to check for cached rules
-2. If no cache exists, call `mcp__vet-mediator-mcp__update_review_rules(rule_type="file-generator", dst_path="{project_root}/VetMediatorSessions")` to update rules
-   - MCP server automatically deletes old rule files and writes the latest version
-3. Generate required files according to cached rules (UTF-8 encoding without BOM)
-4. Call MCP tool: `mcp__vet-mediator-mcp__start_review`
-   - Required parameters: `review_index_path`, `draft_paths`, `project_root`
-   - Recommended parameter: `initiator="Claude Code"` (identifies AI tool initiating review)
-
-**Supported CLI Tools**:
-- iFlow (default)
-- Claude Code
-- Other AI code review tools (specified via `.VetMediatorSetting.json` config file)
-
-## 🔧 CLI Tool Configuration Management
-
-**Trigger Words**: `view CLI config` or `switch CLI tool` or `show cli config`
-
-**Features**:
-- Display GUI interface to view all configured CLI tool status
-- Real-time health check for each tool (whether installed)
-- One-click switch to activate another CLI tool
-- Display config file paths (global and project)
-
-**Execution Steps**:
-Call MCP tool: `mcp__vet-mediator-mcp__show_cli_config`
-- Required parameter: `project_root` (project root directory path)
-```
-
 ### First Use
 
-1. Restart AI agent to load MCP configuration
-2. Enter trigger words (e.g., "use vet verification")
-3. AI agent automatically generates task files and calls MCP tool
+1. Restart your AI tool (Claude Code / Cursor, etc.) to load MCP configuration
+2. Enter trigger words: `use vet verification` or `使用vet验证`
+3. AI tool automatically generates task files and calls MCP tool
 4. Real-time monitoring window displays review progress
-5. View generated review report
+5. View the generated review report
 
 ---
 
@@ -457,6 +284,136 @@ Display CLI tool configuration interface.
 - One-click switch active CLI tool
 - View config file paths (global and project)
 
+### get_review_rule_hash
+
+Get SHA-256 hash (first 12 characters) of review rule file for local cache version detection.
+
+**Parameters**:
+- `rule_type` (optional): Rule type, default "file-generator"
+
+**Returns**:
+```json
+{
+  "rule_type": "file-generator",
+  "hash": "a1b2c3d4e5f6",
+  "description": "Rule file hash for cache validation"
+}
+```
+
+**Purpose**:
+- AI agents can check if locally cached rule files are up-to-date using the hash
+- Avoids re-downloading rule files every time, saving token consumption
+
+### update_review_rules
+
+Update review rule file to specified directory.
+
+**Parameters**:
+- `dst_path` (required): Complete destination path (e.g., `/path/to/project/VetMediatorSessions`)
+- `rule_type` (optional): Rule type, default "file-generator"
+
+**Features**:
+- MCP server automatically deletes old rule cache files
+- Writes latest version of rule file to specified directory
+- Rule documentation includes: file format specs, templates, examples, MCP call instructions
+
+**Returns**:
+```json
+{
+  "status": "success",
+  "rule_file_path": "/path/to/project/VetMediatorSessions/vet_mediator_rule_a1b2c3d4e5f6.md",
+  "hash": "a1b2c3d4e5f6",
+  "message": "Rule file updated"
+}
+```
+
+---
+
+## 🔧 Advanced Configuration
+
+### Two-Phase Review Mode
+
+VetMediator supports two-phase reviews: **Phase 1** reviews task planning, **Phase 2** reviews code implementation.
+
+**Enabling Method**:
+
+Provide `original_requirement_path` and `task_planning_path` parameters when calling `start_review`:
+
+```python
+mcp__vet-mediator-mcp__start_review(
+    review_index_path="...",
+    draft_paths=["..."],
+    project_root="...",
+    original_requirement_path="/path/to/OriginalRequirement.md",  # Original requirements
+    task_planning_path="/path/to/TaskPlanning.md"                  # Task planning
+)
+```
+
+**Workflow**:
+1. CLI tool first reviews task planning (compared with original requirements)
+2. If planning passes, then reviews specific code implementation
+3. Both review results included in final report
+
+**Use Cases**:
+- Complex feature development requiring planning before implementation
+- Team collaboration requiring design review before code review
+- High-quality requirements with dual assurance for code quality
+
+### Custom CLI Tool Configuration
+
+By default, VetMediator auto-detects installed CLI tools. You can also configure manually:
+
+**Project-Level Config** (higher priority):
+
+Create `.VetMediatorSetting.json` in project root:
+
+```json
+{
+  "tools": [
+    {
+      "name": "iflow",
+      "executable": "iflow",
+      "enabled": true
+    },
+    {
+      "name": "codex",
+      "executable": "codex",
+      "args": ["--custom-arg"],
+      "enabled": false
+    }
+  ],
+  "active_tool": "iflow"
+}
+```
+
+**Global Config** (lower priority):
+
+Config file location: `~/.vetmediator/config.json`
+
+Same format as project-level config.
+
+### Performance Optimization Tips
+
+**1. Rule File Caching**
+
+Rule files are automatically cached in `VetMediatorSessions/` directory:
+- Filename format: `vet_mediator_rule_{hash}.md`
+- Hash checked before each review, re-download only when version changes
+- Recommended to add `VetMediatorSessions/vet_mediator_rule_*.md` to version control (optional)
+
+**2. Task File Size Control**
+
+For optimal performance:
+- Single task file recommended not to exceed 1000 lines of code
+- Complex features recommended to split into multiple task files
+- Use `draft_paths` parameter to submit multiple tasks in order
+
+**3. Concurrent Review Limits**
+
+- By default, VetMediator processes one review task at a time
+- For concurrency, start multiple reviews in different project directories
+- Note CLI tool API rate limits
+
 ---
 
 ## 🛠️ Troubleshooting
@@ -494,6 +451,119 @@ claude --version
 - This is normal behavior, automatically downgrades to CLI mode in headless environments
 - All functionality remains intact, just without GUI window
 - If GUI is needed, ensure DISPLAY environment variable is set correctly (Linux)
+
+### Rule File Download Failed
+
+**Symptom**: `[ERROR] Failed to download rule file`
+
+**Solution**:
+```bash
+# 1. Check network connection
+curl -I https://raw.githubusercontent.com/ldr123/VetMediatorMCP/master/rules/CLAUDE.md
+
+# 2. Manually download rule file
+cd VetMediatorSessions
+wget https://raw.githubusercontent.com/ldr123/VetMediatorMCP/master/rules/rule-agent-file-generator.md
+# Rename to vet_mediator_rule_{hash}.md
+
+# 3. Chinese users can use Gitee mirror
+# curl -O https://gitee.com/ldr123/VetMediatorMCP/raw/master/rules/rule-agent-file-generator.md
+```
+
+### VetMediatorSessions Directory Permission Issue
+
+**Symptom**: `[ERROR] Permission denied: VetMediatorSessions/`
+
+**Solution**:
+```bash
+# Check directory permissions
+ls -la VetMediatorSessions/
+
+# Fix permissions (Linux/macOS)
+chmod 755 VetMediatorSessions/
+chmod 644 VetMediatorSessions/*
+
+# Windows (Git Bash)
+# Right-click directory -> Properties -> Security -> Edit permissions
+```
+
+### MCP Tool Call Failed
+
+**Symptom**: `Tool 'vet-mediator-mcp' not found`
+
+**Solution**:
+1. Check if `.mcp.json` configuration is correct
+2. Restart AI tool (Claude Code / Cursor)
+3. Run verification script: `./verify-config.sh`
+4. Check if uvx is correctly installed: `uvx --version`
+
+### Python Version Too Low
+
+**Symptom**: `Python 3.10+ required, but found Python 3.9`
+
+**Solution**:
+```bash
+# macOS (using Homebrew)
+brew install python@3.10
+
+# Ubuntu/Debian
+sudo apt update
+sudo apt install python3.10
+
+# Windows
+# Download and install Python 3.10+ from https://python.org
+
+# Verify installation
+python3 --version
+```
+
+### Review Report Format Error
+
+**Symptom**: CLI tool generated report cannot be parsed
+
+**Solution**:
+1. Check if CLI tool version is latest: `iflow --version`
+2. View original report file: `VetMediatorSessions/session-*/Report.md`
+3. Confirm CLI tool is configured correctly (API keys, etc.)
+4. Try switching to another CLI tool
+
+### Diagnostic Command Collection
+
+**Collect Diagnostic Information**:
+```bash
+# Run log collection script
+./collect-logs.sh
+
+# Or collect manually
+echo "=== System Info ===" > debug.log
+uname -a >> debug.log
+python3 --version >> debug.log
+uvx --version >> debug.log
+
+echo "=== Config Files ===" >> debug.log
+cat .mcp.json >> debug.log
+
+echo "=== CLI Tools ===" >> debug.log
+iflow --version >> debug.log 2>&1 || echo "iFlow: not installed" >> debug.log
+codex --version >> debug.log 2>&1 || echo "Codex: not installed" >> debug.log
+
+echo "=== Recent Errors ===" >> debug.log
+grep -r "ERROR" VetMediatorSessions/ | tail -n 20 >> debug.log
+
+# Attach debug.log to GitHub Issue
+```
+
+**Quick Diagnostics**:
+```bash
+# Run verification script
+./verify-config.sh
+
+# Check specific items
+python3 -c "import sys; print(f'Python {sys.version}')"
+uvx --version
+ls -la .mcp.json
+ls -la VetMediatorSessions/
+```
 
 ---
 
@@ -541,6 +611,6 @@ If you have questions:
 
 ---
 
-**Version**: 2.0.1
-**Last Updated**: 2025-11-12
+**Version**: 2.1.0
+**Last Updated**: 2025-11-13
 **Compatibility**: Python 3.10+, MCP 1.0.0+

@@ -24,7 +24,7 @@
 <tr>
 <td width="50%" align="center">
 
-### [🇨🇳 中文文档](docs/zh/README.md)
+### [中文文档](docs/zh/README.md)
 
 完整的中文使用指南
 
@@ -38,7 +38,7 @@
 </td>
 <td width="50%" align="center">
 
-### [🇬🇧 English Documentation](docs/en/README.md)
+### [English Documentation](docs/en/README.md)
 
 Complete English guide
 
@@ -55,73 +55,43 @@ Complete English guide
 
 ---
 
+## ⚡ 3-Minute Setup / 3分钟快速配置
+
+**New to VetMediator? / 刚接触VetMediator？**
+
+👉 **[Quick Start Guide (3 minutes) / 快速开始指南（3分钟）](docs/QUICKSTART.md)**
+
+For one-command installation and quick setup / 一键安装和快速配置
+
+---
+
 ## 🚀 Quick Start / 快速开始
 
-### Prerequisites / 前置要求
+### One-Command Installation / 一键安装
 
-- **Python 3.10+** - [Download](https://python.org)
-- **uvx** - Python package runner (installed with uv): `pip install uv` / Python包运行器：`pip install uv`
-- **MCP-compatible AI agent** - e.g., Claude Code, Cursor, etc. / MCP兼容的AI代理，如Claude Code、Cursor等
-- **CLI review tool** - e.g., Codex, Claude CLI or iFlow (at least one required) / CLI审查工具，如Codex、Claude CLI或iFlow（至少一个）
+```bash
+# Run installation script / 运行安装脚本
+curl -sSL https://raw.githubusercontent.com/ldr123/VetMediatorMCP/master/install.sh | bash
 
-### Installation / 安装
-
-**Using uvx (Recommended) / 使用uvx（推荐）**:
-
-📋 **Step 1: Configure MCP server in your project / 在项目中配置MCP服务器**
-
-Create `.mcp.json` in your project root directory with the following content:
-
-在项目根目录创建 `.mcp.json` 文件，内容如下：
-
-```json
-{
-  "mcpServers": {
-    "vet-mediator-mcp": {
-      "command": "uvx",
-      "args": [
-        "--from",
-        "git+https://github.com/ldr123/VetMediatorMCP.git",
-        "vet-mediator-mcp"
-      ]
-    }
-  }
-}
+# Or download and run manually / 或手动下载运行
+# wget https://raw.githubusercontent.com/ldr123/VetMediatorMCP/master/install.sh
+# chmod +x install.sh && ./install.sh
 ```
 
-**China Mirror / 中国镜像**:
-```json
-"git+https://gitee.com/ldr123/VetMediatorMCP.git"
+### Verify Installation / 验证安装
+
+```bash
+# Run verification script / 运行验证脚本
+./verify-config.sh
 ```
 
-📋 **Step 2: Add VetMediator rules to your AI tool's rule file / 添加VetMediator规则到AI工具的规则文件**
+### First Use / 首次使用
 
-Copy the content of `rules/CLAUDE.md` from this repository to the **beginning** of your project's AI tool rule file.
+1. Restart your AI tool (Claude Code / Cursor) / 重启AI工具
+2. Type in AI tool / 在AI工具中输入：`查看CLI配置` or `show cli config`
+3. Start review / 开始审查：`使用vet验证` or `use vet validation`
 
-从本仓库复制 `rules/CLAUDE.md` 的内容到你的项目的AI工具规则文件的**开头部分**。
-
-**Different AI tools use different rule files / 不同AI工具使用不同的规则文件**:
-
-| AI Tool / 工具 | Rule File / 规则文件 | Location / 位置 |
-|----------------|---------------------|----------------|
-| **Claude Code** | `CLAUDE.md` | Project root / 项目根目录 |
-| **Cursor** | `*.mdc` | `.cursor/rules/` |
-| **Codex** | `AGENTS.md` | Project root / 项目根目录 |
-| **iFlow** | `IFLOW.md` | Project root / 项目根目录 |
-| **Gemini CLI** | `GEMINI.md` | Project root / 项目根目录 |
-
-**Examples / 示例**:
-- **Claude Code**: Copy `rules/CLAUDE.md` content → Your project's `CLAUDE.md` (beginning)
-- **Codex**: Copy `rules/CLAUDE.md` content → Your project's `AGENTS.md` (beginning)
-- **iFlow**: Copy `rules/CLAUDE.md` content → Your project's `IFLOW.md` (beginning)
-
-复制示例：
-- **Claude Code**：复制 `rules/CLAUDE.md` 内容 → 你的项目的 `CLAUDE.md`（开头部分）
-- **Codex**：复制 `rules/CLAUDE.md` 内容 → 你的项目的 `AGENTS.md`（开头部分）
-- **iFlow**：复制 `rules/CLAUDE.md` 内容 → 你的项目的 `IFLOW.md`（开头部分）
-
-📚 **For detailed instructions, see documentation above**
-**详细说明请查看上方文档**
+**📚 For detailed setup instructions, see / 详细安装说明请查看**: [Quick Start Guide (3 minutes) / 快速开始指南（3分钟）](docs/QUICKSTART.md)
 
 ---
 
@@ -165,7 +135,7 @@ Want to see VetMediator in action? Check out our complete example!
 
 ## 📊 Project Status / 项目状态
 
-**Version / 版本**: 2.0.1
+**Version / 版本**: 2.1.0
 **Status / 状态**: Active Development / 积极开发中
 **Python / Python版本**: 3.10+
 **MCP Compatibility / MCP兼容性**: 1.0.0+
